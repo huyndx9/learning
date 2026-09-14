@@ -320,6 +320,32 @@ button{cursor:pointer; border:none; background:none; padding:0}
 }
 .suggest:hover{background:var(--fill); border-color:var(--border); transform:translateY(-1px)}
 
+/* THẺ PHÂN LOẠI */
+.tag-box{background:var(--fill); border-radius:16px; padding:14px}
+.tag-row{display:flex; flex-wrap:wrap; gap:8px}
+.tag-chip{
+  display:inline-flex; align-items:center; gap:6px; background:#fff; color:var(--text-3);
+  border:1px solid var(--border-soft); border-radius:20px; padding:5px 6px 5px 12px;
+  font-size:12px; font-weight:500;
+}
+.tag-chip.hot{background:rgba(245,99,0,.08); border-color:rgba(245,99,0,.18); color:var(--orange)}
+.tag-chip button{
+  width:18px; height:18px; border-radius:50%; color:var(--text-2);
+  display:grid; place-items:center; flex:none;
+  transition:background .4s var(--ease), color .4s var(--ease);
+}
+.tag-chip button:hover{background:var(--fill-hover); color:var(--text)}
+.tag-form{display:flex; gap:8px; margin-top:12px}
+.tag-form input{
+  flex:1; min-width:0; height:34px; border-radius:17px; border:1px solid var(--border-soft);
+  background:#fff; padding:0 14px; font-size:13px; outline:none;
+  transition:border-color .4s var(--ease), box-shadow .4s var(--ease);
+}
+.tag-form input:focus{border-color:var(--accent); box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+.tag-form .btn{height:34px; background:#fff; border:1px solid var(--border-soft); padding:0 16px}
+.tag-form .btn:hover{background:var(--fill-hover)}
+.tag-empty{font-size:12.5px; color:var(--text-2)}
+
 /* TÀI LIỆU ĐÍNH KÈM */
 .file-list{display:flex; flex-direction:column; gap:8px}
 .file{
@@ -923,6 +949,22 @@ function renderTimeline(){
    ============================================================ */
 var openId = null;
 var noteTimer = null;
+var MAX_TAGS = 5;   /* giữ thẻ gọn để không vỡ bố cục thẻ trên board */
+
+/* thêm một thẻ vào nhiệm vụ đang mở; trả về true nếu thêm được */
+function addTag(raw){
+  var t = byId(openId);
+  if(!t) return false;
+  var name = String(raw || '').trim().replace(/\s+/g, ' ');
+  if(!name) return false;
+  if(t.tags.length >= MAX_TAGS){ toast('Mỗi nhiệm vụ tối đa ' + MAX_TAGS + ' thẻ'); return false; }
+  var trung = t.tags.some(function(x){ return x.toLowerCase() === name.toLowerCase(); });
+  if(trung){ toast('Thẻ "' + name + '" đã có rồi'); return false; }
+  t.tags.push(name);
+  logActivity(roleName(state.role) + ' gắn thẻ <b>' + esc(name) + '</b> cho <i>' + esc(t.title) + '</i>');
+  save(); render(); renderModal();
+  return true;
+}
 
 var ICONS = {
   book:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/><path d="M2.5 6h11"/></svg>',
@@ -933,13 +975,16 @@ var ICONS = {
   clock:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.2l2 1.3" stroke-linecap="round"/></svg>',
   person:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="6" r="2.5"/><path d="M3.5 13c.6-2.2 2.3-3.3 4.5-3.3s3.9 1.1 4.5 3.3" stroke-linecap="round"/></svg>',
   gauge:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 11a5.5 5.5 0 1110 0"/><path d="M8 11l2.5-3"/></svg>',
-  x:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>'
+  x:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>',
+  tag:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 7.4V3a.5.5 0 01.5-.5h4.4a1 1 0 01.7.3l5.1 5.1a1 1 0 010 1.4l-4.4 4.4a1 1 0 01-1.4 0L2.8 8.6a1 1 0 01-.3-.7z"/><circle cx="5.6" cy="5.6" r=".9" fill="currentColor" stroke="none"/></svg>',
+  xs:'<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>'
 };
 
 function openModal(id){
   var t = byId(id);
   if(!t) return;
   openId = id;
+  $('#modalScroll').scrollTop = 0;
   renderModal();
   $('#backdrop').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -954,6 +999,7 @@ function closeModal(){
 function renderModal(){
   var t = byId(openId);
   if(!t) return;
+  var keepScroll = $('#modalScroll').scrollTop;   /* vẽ lại mà không nhảy về đầu */
   var editable = state.role === 'sep';   /* chỉ Sếp mới sửa được đề bài */
 
   /* ---- hàng tag: pill đầu tiên tô nền, các tag sau dạng chữ + dấu chấm ---- */
@@ -992,6 +1038,22 @@ function renderModal(){
       '<div class="sub-card"><div class="k">Tiêu chí đạt</div><div class="v"' + (editable ? ' contenteditable="true" data-edit="criteria"' : '') + '>' + esc(t.criteria) + '</div></div>' +
       '<div class="sub-card"><div class="k">Khách hàng liên quan</div><div class="v"' + (editable ? ' contenteditable="true" data-edit="customer"' : '') + '>' + esc(t.customer) + '</div></div>' +
     '</div>';
+
+  /* ---- THẺ PHÂN LOẠI: thêm / bớt trực tiếp ---- */
+  var chips = t.tags.length ? t.tags.map(function(x, i){
+    return '<span class="tag-chip">' + esc(x) +
+      '<button data-rmtag="' + i + '" aria-label="Bỏ thẻ ' + esc(x) + '">' + ICONS.xs + '</button></span>';
+  }).join('') + '<span class="tag-chip hot">' + esc(t.priority) + '</span>'
+    : '<span class="tag-empty">Chưa có thẻ nào — thêm thẻ để dễ tìm và lọc.</span>';
+  /* gợi ý các thẻ đã dùng ở nhiệm vụ khác */
+  var used = {}, pool = [];
+  t.tags.forEach(function(x){ used[x] = 1; });
+  state.tasks.forEach(function(o){
+    o.tags.forEach(function(x){ if(!used[x]){ used[x] = 1; pool.push(x); } });
+  });
+  var tagSuggests = pool.slice(0, 4).map(function(x){
+    return '<button class="suggest" data-addtag="' + esc(x) + '">+ ' + esc(x) + '</button>';
+  }).join('');
 
   /* ---- GHI CHÚ HỌC TẬP ---- */
   var suggests = (t.suggests || []).map(function(s){
@@ -1033,6 +1095,20 @@ function renderModal(){
     '<p class="m-desc"' + (editable ? ' contenteditable="true" data-edit="desc"' : '') + '>' + esc(t.desc) + '</p>' +
 
     '<div class="m-meta">' + meta + '</div>' +
+
+    '<div class="m-section">' +
+      '<div class="sec-head"><span class="sec-label">' + ICONS.tag + 'Thẻ phân loại</span>' +
+        '<span class="sec-note">' + t.tags.length + '/' + MAX_TAGS + ' thẻ</span></div>' +
+      '<div class="tag-box">' +
+        '<div class="tag-row">' + chips + '</div>' +
+        '<form class="tag-form" id="tagForm">' +
+          '<input id="tagInput" maxlength="24" autocomplete="off" placeholder="Tên thẻ mới…"' +
+            (t.tags.length >= MAX_TAGS ? ' disabled placeholder="Đã đủ ' + MAX_TAGS + ' thẻ"' : '') + '>' +
+          '<button type="submit" class="btn btn-secondary"' + (t.tags.length >= MAX_TAGS ? ' disabled style="opacity:.5"' : '') + '>Thêm</button>' +
+        '</form>' +
+        (tagSuggests && t.tags.length < MAX_TAGS ? '<div class="suggests">' + tagSuggests + '</div>' : '') +
+      '</div>' +
+    '</div>' +
 
     '<div class="m-section">' +
       '<div class="sec-head"><span class="sec-label">' + ICONS.book + 'Nội dung học tập</span>' +
@@ -1082,6 +1158,7 @@ function renderModal(){
       '</form>' +
     '</div>';
 
+  $('#modalScroll').scrollTop = keepScroll;
   renderFoot(t);
 }
 
@@ -1147,6 +1224,16 @@ backdrop.addEventListener('click', function(e){
     onNoteInput();
     return;
   }
+
+  /* thẻ phân loại */
+  if(el.dataset.rmtag != null){
+    var ti = Number(el.dataset.rmtag);
+    var bo = t.tags.splice(ti, 1)[0];
+    if(bo) logActivity(roleName(state.role) + ' bỏ thẻ <b>' + esc(bo) + '</b> khỏi <i>' + esc(t.title) + '</i>');
+    save(); render(); renderModal();
+    return;
+  }
+  if(el.dataset.addtag){ addTag(el.dataset.addtag); return; }
 
   /* tài liệu */
   if(el.id === 'addFile'){ $('#filePicker').click(); return; }
@@ -1239,6 +1326,13 @@ $('#filePicker').addEventListener('change', function(e){
 
 /* gửi trao đổi */
 backdrop.addEventListener('submit', function(e){
+  if(e.target.id === 'tagForm'){
+    e.preventDefault();
+    var ip = $('#tagInput');
+    if(addTag(ip.value)){ var f = $('#tagInput'); if(f) f.focus(); }
+    else ip.select();
+    return;
+  }
   if(e.target.id !== 'chatForm') return;
   e.preventDefault();
   var t = byId(openId), input = $('#chatInput');
