@@ -103,27 +103,58 @@ button{cursor:pointer; border:none; background:none; padding:0}
 }
 .sync-pill:hover{background:var(--fill-hover); color:var(--text)}
 .sync-dot{width:6px; height:6px; border-radius:50%; background:var(--text-2); flex:none}
-.sync-pill.chung .sync-dot{background:var(--green)}
+.sync-pill.chung .sync-dot{background:var(--green); animation:song 2.4s ease-in-out infinite}
 .sync-pill.chung{color:var(--text)}
+@keyframes song{0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.45; transform:scale(.82)}}
 .sync-pill.loi .sync-dot{background:var(--orange)}
 .sync-pill.dang .sync-dot{background:var(--accent); animation:tho 1.2s ease-in-out infinite}
 @keyframes tho{50%{opacity:.3}}
 @media(max-width:900px){.sync-pill span:last-child{display:none} .sync-pill{padding:0 9px}}
 
-/* segmented control kiểu iOS */
-.segmented{
-  display:inline-flex; background:var(--fill); border-radius:9px; padding:2px; position:relative;
+/* chip cho biết đang vào với tên ai */
+.me{
+  display:inline-flex; align-items:center; gap:7px; height:28px; padding:3px 12px 3px 3px;
+  border-radius:14px; background:var(--fill); font-size:12.5px; font-weight:500; color:var(--text);
+  white-space:nowrap; transition:background .4s var(--ease);
 }
-.segmented button{
-  position:relative; z-index:1; height:26px; padding:0 14px; border-radius:7px;
-  font-size:12.5px; font-weight:500; color:var(--text-2);
-  transition:color .4s var(--ease);
+.me:hover{background:var(--fill-hover)}
+.me[hidden]{display:none}   /* class display đè mất thuộc tính hidden nếu không nói rõ */
+.me .avatar{width:22px; height:22px; font-size:9px}
+
+/* màn hình chọn người dùng — chưa chọn thì chưa làm gì được */
+.gate{
+  position:fixed; inset:0; z-index:150; background:var(--bg);
+  display:grid; place-items:center; padding:24px;
+  transition:opacity .4s var(--ease);
 }
-.segmented button[aria-pressed="true"]{color:var(--text)}
-.seg-thumb{
-  position:absolute; top:2px; left:2px; height:26px; border-radius:7px; background:#fff;
-  box-shadow:0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04);
-  transition:transform .4s var(--ease), width .4s var(--ease);
+.gate.an{opacity:0; pointer-events:none}
+.gate-box{width:100%; max-width:520px; text-align:center}
+.gate-box h1{margin:0; font-size:38px; font-weight:600; letter-spacing:-.035em; line-height:1.1}
+.gate-box p{margin:12px 0 0; font-size:16px; color:var(--text-2)}
+.gate-chon{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:38px}
+.gate-card{
+  background:var(--card); border:1px solid rgba(0,0,0,.05); border-radius:20px;
+  padding:26px 18px; box-shadow:var(--shadow); text-align:center;
+  transition:transform .4s var(--ease), box-shadow .4s var(--ease), border-color .4s var(--ease);
+}
+.gate-card:hover{transform:translateY(-3px); box-shadow:var(--shadow-hover)}
+.gate-card:active{transform:translateY(-1px)}
+.gate-card[aria-current="true"]{border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,113,227,.14), var(--shadow)}
+.gate-card .av{
+  width:52px; height:52px; border-radius:50%; margin:0 auto; display:grid; place-items:center;
+  background:var(--text); color:#fff; font-size:17px; font-weight:600; letter-spacing:.02em;
+}
+.gate-card .av.huy{background:var(--accent)}
+.gate-card .ten{display:block; margin-top:14px; font-size:18px; font-weight:600; letter-spacing:-.02em}
+.gate-card .viec{display:block; margin-top:5px; font-size:12.5px; color:var(--text-2); line-height:1.45}
+.gate-foot{margin-top:26px; font-size:12px; color:var(--text-2)}
+@media(max-width:560px){
+  .gate-box h1{font-size:29px}
+  .gate-box p{font-size:14.5px}
+  .gate-chon{grid-template-columns:1fr; gap:12px; margin-top:28px}
+  .gate-card{padding:20px 16px; display:flex; align-items:center; gap:16px; text-align:left}
+  .gate-card .av{margin:0; flex:none}
+  .gate-card .ten{margin-top:0}
 }
 
 /* ============================================================
@@ -575,15 +606,13 @@ body[data-role="sep"] .card{cursor:pointer}
 
     <!-- cho biết đang lưu chung hay chỉ lưu trên máy này -->
     <button class="sync-pill" id="syncPill" type="button" title="Nơi lưu dữ liệu">
-      <span class="sync-dot"></span><span id="syncText">Chỉ máy này</span>
+      <span class="sync-dot"></span><span id="syncText">Đang nối…</span>
     </button>
 
-    <!-- chuyển vai trò kiểu segmented control của iOS -->
-    <div class="segmented" id="roleSwitch">
-      <span class="seg-thumb" id="segThumb"></span>
-      <button data-role="sep" aria-pressed="true">SẾP</button>
-      <button data-role="huy" aria-pressed="false">HUY</button>
-    </div>
+    <!-- đang vào với tên ai; bấm vào để đổi người -->
+    <button class="me" id="mePill" type="button" title="Đổi người dùng">
+      <span class="avatar" id="meAvatar">AT</span><span id="meName">Sếp</span>
+    </button>
   </div>
 </header>
 
@@ -666,6 +695,31 @@ body[data-role="sep"] .card{cursor:pointer}
     <span>⌘K để tìm · Esc để đóng · Kéo thả để đổi trạng thái</span>
   </div>
 </main>
+
+<!-- ===================== CHỌN NGƯỜI DÙNG ===================== -->
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h1>Bạn là ai?</h1>
+    <p>Chọn tên để vào không gian học tập.</p>
+    <div class="gate-chon">
+      <button class="gate-card" data-vao="sep">
+        <span class="av">AT</span>
+        <span>
+          <span class="ten">Sếp</span>
+          <span class="viec">Giao việc, ra đề, nhận xét</span>
+        </span>
+      </button>
+      <button class="gate-card" data-vao="huy">
+        <span class="av huy">HU</span>
+        <span>
+          <span class="ten">Huy</span>
+          <span class="viec">Làm việc, báo tiến độ</span>
+        </span>
+      </button>
+    </div>
+    <div class="gate-foot">Chọn xong vẫn đổi lại được ở góc trên bên phải.</div>
+  </div>
+</div>
 
 <!-- ===================== MODAL CHI TIẾT ===================== -->
 <div class="backdrop" id="backdrop" role="dialog" aria-modal="true" aria-labelledby="mTitle">
@@ -935,7 +989,7 @@ var SEED_ACTIVITY = [
    2. LƯU TRỮ — localStorage (sau này thay bằng Supabase)
    ============================================================ */
 var KEY = 'learning.itsales.v1';
-var state = { tasks:[], activity:[], role:'sep' };
+var state = { tasks:[], activity:[], role:null };   /* null = chưa chọn người dùng */
 
 function load(){
   try{
@@ -944,7 +998,7 @@ function load(){
       var p = JSON.parse(raw);
       state.tasks = Array.isArray(p.tasks) && p.tasks.length ? p.tasks : clone(SEED);
       state.activity = Array.isArray(p.activity) ? p.activity : clone(SEED_ACTIVITY);
-      state.role = p.role === 'huy' ? 'huy' : 'sep';
+      state.role = (p.role === 'huy' || p.role === 'sep') ? p.role : null;
       return;
     }
   }catch(e){ /* dữ liệu hỏng thì dựng lại từ đầu */ }
@@ -964,7 +1018,7 @@ var henBaoLuu = null;
 function baoDaLuu(){
   var el = $('#footText'), t = byId(openId);
   if(!el || !t) return;
-  el.textContent = cheDo === 'chung' ? '✓ Đã lưu, bên kia cũng thấy' : '✓ Đã lưu trên máy này';
+  el.textContent = cheDo === 'chung' ? '✓ Đã lưu, bên kia thấy ngay' : '✓ Đã lưu trên máy này';
   clearTimeout(henBaoLuu);
   henBaoLuu = setTimeout(function(){
     var e2 = $('#footText'), t2 = byId(openId);
@@ -1068,7 +1122,7 @@ function datPill(loai, chu){
   if(!el) return;
   el.className = 'sync-pill' + (loai ? ' ' + loai : '');
   $('#syncText').textContent = chu;
-  el.title = loai === 'chung' ? 'Sếp và Huy dùng chung một bảng'
+  el.title = loai === 'chung' ? 'Đang nối máy chủ — hai bên thấy thay đổi của nhau ngay'
     : loai === 'loi' ? 'Không nối được máy chủ — đang lưu tạm trên máy này'
     : 'Dữ liệu chỉ nằm trong trình duyệt này';
 }
@@ -1202,7 +1256,7 @@ function dayLen(){
   return Promise.all(viec).then(function(kq){
     kq.forEach(function(k){ if(k && k.error) throw k.error; });
     chupLai();
-    datPill('chung', 'Dùng chung');
+    datPill('chung', 'Live');
   }).catch(function(e){
     console.error('Đẩy lên thất bại:', e);
     datPill('loi', 'Chưa lưu được');
@@ -1936,7 +1990,7 @@ function doiTrangThai(t, to){
   if(t.status === to) return false;
   /* Sếp giao việc và ra đề, Huy mới là người báo việc đang tới đâu */
   if(!duocDoiTrangThai()){
-    toast('Chỉ Huy chuyển được trạng thái — đổi vai ở góc trên bên phải');
+    toast('Chỉ Huy chuyển được trạng thái — bạn đang vào với tên Sếp');
     return false;
   }
   moveTask(t, to);
@@ -1976,7 +2030,7 @@ board.addEventListener('pointerdown', function(e){
   if(drag.touch) drag.timer = setTimeout(function(){
     if(!drag) return;
     if(!duocDoiTrangThai()){
-      toast('Chỉ Huy chuyển được trạng thái — đổi vai ở góc trên bên phải');
+      toast('Chỉ Huy chuyển được trạng thái — bạn đang vào với tên Sếp');
       drag = null; return;
     }
     beginDrag();
@@ -2041,7 +2095,7 @@ window.addEventListener('pointermove', function(e){
     if(drag.touch){ if(drag.moved){ clearTimeout(drag.timer); drag = null; } return; }
     if(dx > 5 || dy > 5){
       if(!duocDoiTrangThai()){
-        toast('Chỉ Huy chuyển được trạng thái — đổi vai ở góc trên bên phải');
+        toast('Chỉ Huy chuyển được trạng thái — bạn đang vào với tên Sếp');
         drag = null; return;
       }
       beginDrag();
@@ -2115,28 +2169,46 @@ searchInput.addEventListener('input', function(){
   render();
 });
 
-var roleSwitch = $('#roleSwitch');
 function paintRole(){
-  document.body.setAttribute('data-role', state.role);
-  $$('#roleSwitch button').forEach(function(b){
-    var on = b.dataset.role === state.role;
-    b.setAttribute('aria-pressed', on ? 'true' : 'false');
-    if(on){
-      var thumb = $('#segThumb');
-      thumb.style.width = b.offsetWidth + 'px';
-      thumb.style.transform = 'translateX(' + (b.offsetLeft - 2) + 'px)';
-    }
-  });
+  document.body.setAttribute('data-role', state.role || '');
+  var pill = $('#mePill');
+  if(!pill) return;
+  pill.hidden = !state.role;
+  if(!state.role) return;
+  var av = $('#meAvatar');
+  av.textContent = roleInitials(state.role);
+  av.className = 'avatar' + (state.role === 'huy' ? ' huy' : '');
+  $('#meName').textContent = roleName(state.role);
 }
-roleSwitch.addEventListener('click', function(e){
-  var b = e.target.closest('button[data-role]');
-  if(!b || b.dataset.role === state.role) return;
-  state.role = b.dataset.role;
+
+/* ---------- cổng chọn người dùng ---------- */
+var gate = $('#gate');
+
+function moCong(){
+  $$('.gate-card').forEach(function(c){
+    c.setAttribute('aria-current', c.dataset.vao === state.role ? 'true' : 'false');
+  });
+  gate.classList.remove('an');
+  document.body.style.overflow = 'hidden';
+}
+function dongCong(){
+  gate.classList.add('an');
+  document.body.style.overflow = '';
+}
+
+gate.addEventListener('click', function(e){
+  var b = e.target.closest('[data-vao]');
+  if(!b) return;
+  var moi = b.dataset.vao;
+  var doiNguoi = state.role && state.role !== moi;
+  state.role = moi;
   save(); paintRole(); render();
   if(openId) renderModal();
-  toast('Đang xem với vai trò ' + roleName(state.role));
+  dongCong();
+  if(doiNguoi) toast('Đang vào với tên ' + roleName(moi));
 });
-window.addEventListener('resize', paintRole);
+
+$('#mePill').addEventListener('click', moCong);
 
 document.addEventListener('keydown', function(e){
   if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
@@ -2155,6 +2227,7 @@ load();
 chuanHoa();
 render();
 paintRole();
+if(state.role) dongCong(); else moCong();   /* chưa chọn tên thì chưa thao tác được gì */
 /* làm mới nhãn thời gian mỗi phút cho timeline luôn đúng */
 setInterval(renderTimeline, 60000);
 
@@ -2181,7 +2254,7 @@ setInterval(renderTimeline, 60000);
   }).then(function(du){
     apDung(du);
     ngheThayDoi();
-    datPill('chung', 'Dùng chung');
+    datPill('chung', 'Live');
   }).catch(function(e){
     cheDo = 'may';
     datPill('loi', 'Mất kết nối');
@@ -2193,10 +2266,10 @@ setInterval(renderTimeline, 60000);
 /* bấm vào pill thì nói rõ dữ liệu đang nằm ở đâu */
 $('#syncPill').addEventListener('click', function(){
   toast(cheDo === 'chung'
-    ? 'Sếp và Huy đang dùng chung một bảng — sửa bên này bên kia thấy ngay'
+    ? 'Đang nối máy chủ — người kia sửa gì bạn thấy ngay, không cần tải lại'
     : coCauHinh()
       ? 'Chưa nối được máy chủ — thay đổi đang lưu tạm trên máy này'
-      : 'Dữ liệu chỉ nằm trong trình duyệt này. Điền Supabase vào đầu file để dùng chung.');
+      : 'Dữ liệu chỉ nằm trong trình duyệt này. Điền Supabase vào đầu file để nối chung.');
 });
 
 })();
