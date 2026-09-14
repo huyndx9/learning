@@ -53,6 +53,9 @@ lúc này chỉ còn là bản đệm: mất mạng vẫn xem và làm việc đ
 Lần đầu mở trang, nếu bảng còn trống thì dữ liệu đang có trên máy sẽ được
 đẩy lên làm điểm xuất phát.
 
+Bước 2 tạo luôn kho `tai-lieu` để chứa nội dung thật của tệp đính kèm.
+Chưa chạy phần đó thì đính kèm chỉ ghi được tên tệp, tải về sẽ không ra gì.
+
 Pill ở đầu trang cho biết đang ở chế độ nào: **Dùng chung** (chấm xanh lá),
 **Chỉ máy này** (chấm xám), hoặc **Mất kết nối** (chấm cam).
 

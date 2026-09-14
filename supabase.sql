@@ -74,3 +74,23 @@ begin
   begin execute 'alter publication supabase_realtime add table public.comments'; exception when others then null; end;
   begin execute 'alter publication supabase_realtime add table public.activity'; exception when others then null; end;
 end $$;
+
+-- =====================================================================
+-- KHO TÀI LIỆU
+-- Chứa nội dung thật của các tệp đính kèm trong nhiệm vụ.
+-- Gói miễn phí cho 1GB, mỗi tệp tối đa 50MB.
+-- =====================================================================
+insert into storage.buckets (id, name, public)
+values ('tai-lieu', 'tai-lieu', true)
+on conflict (id) do nothing;
+
+drop policy if exists mo_doc_tep  on storage.objects;
+drop policy if exists mo_ghi_tep  on storage.objects;
+drop policy if exists mo_xoa_tep  on storage.objects;
+
+create policy mo_doc_tep on storage.objects
+  for select using (bucket_id = 'tai-lieu');
+create policy mo_ghi_tep on storage.objects
+  for insert with check (bucket_id = 'tai-lieu');
+create policy mo_xoa_tep on storage.objects
+  for delete using (bucket_id = 'tai-lieu');
