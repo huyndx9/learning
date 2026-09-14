@@ -24,7 +24,7 @@ Mở bằng trình duyệt là chạy — kể cả khi mở trực tiếp từ 
 - Board Kanban 3 cột: Cần học / Đang học / Hoàn thành, kéo thả được bằng chuột và cảm ứng
 - Modal chi tiết từng nhiệm vụ: người giao, hạn chót, ước tính, tiến độ, nội dung học tập,
   thẻ phân loại, ghi chú tự động lưu, tài liệu đính kèm, trao đổi Sếp ↔ Huy
-- Chuyển vai trò SẾP / HUY — Sếp sửa được đề bài, Huy cập nhật tiến độ và ghi chú
+- Vào trang phải chọn tên Sếp hay Huy trước — Sếp ra đề, Huy làm và báo tiến độ
 - Tìm kiếm (⌘K), timeline hoạt động, Esc để đóng
 
 ## Dữ liệu
@@ -36,12 +36,12 @@ Có hai chế độ, quyết định bởi khối `CAU_HINH` ở đầu phần `
 trình duyệt. Sếp và Huy mỗi người một bản riêng, không ai thấy của ai.
 Đây là mặc định, mở file lên là chạy, không cần chuẩn bị gì.
 
-**Điền vào — dùng chung.** Sếp và Huy cùng một bảng, ai sửa thì màn hình
+**Điền vào — nối chung.** Sếp và Huy cùng một bảng, ai sửa thì màn hình
 bên kia đổi theo trong vài giây, không cần tải lại trang. `localStorage`
 lúc này chỉ còn là bản đệm: mất mạng vẫn xem và làm việc được, nối lại thì
 đẩy tiếp.
 
-### Bật chế độ dùng chung
+### Bật chế độ nối chung
 
 1. Tạo một dự án ở [supabase.com](https://supabase.com) — gói miễn phí là đủ
 2. Mở **SQL Editor**, dán toàn bộ `supabase.sql` rồi bấm **Run**
@@ -56,7 +56,7 @@ Lần đầu mở trang, nếu bảng còn trống thì dữ liệu đang có tr
 Bước 2 tạo luôn kho `tai-lieu` để chứa nội dung thật của tệp đính kèm.
 Chưa chạy phần đó thì đính kèm chỉ ghi được tên tệp, tải về sẽ không ra gì.
 
-Pill ở đầu trang cho biết đang ở chế độ nào: **Dùng chung** (chấm xanh lá),
+Pill ở đầu trang cho biết đang ở chế độ nào: **Live** (chấm xanh lá đang thở),
 **Chỉ máy này** (chấm xám), hoặc **Mất kết nối** (chấm cam).
 
 > Khoá `anon` là loại khoá công khai, nằm ngay trong mã nguồn trang — đó là
@@ -69,4 +69,4 @@ Pill ở đầu trang cho biết đang ở chế độ nào: **Dùng chung** (ch
 Chế độ chỉ-máy-này: mở Console của trình duyệt, chạy
 `localStorage.removeItem('learning.itsales.v1')` rồi tải lại trang.
 
-Chế độ dùng chung: xoá sạch ba bảng trong Supabase, rồi làm như trên.
+Chế độ nối chung: xoá sạch ba bảng trong Supabase, rồi làm như trên.
