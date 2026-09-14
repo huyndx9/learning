@@ -208,7 +208,11 @@ body[data-role="sep"] .card{cursor:pointer}
   background:var(--fill); color:var(--text-3); font-size:11px; font-weight:500;
   border-radius:20px; padding:4px 10px; white-space:nowrap;
 }
-.tag.hot{background:rgba(245,99,0,.1); color:var(--orange)}
+/* thang ưu tiên: càng gấp màu càng đậm, mức cao nhất tô đặc */
+.uu-1{background:#f2f2f7; color:#6e6e73}
+.uu-2{background:#fdf1dd; color:#8a5a00}
+.uu-3{background:#fbdfcd; color:#b3450a}
+.uu-4{background:#e8340c; color:#fff}
 .card-foot{
   margin-top:12px; padding-top:12px; border-top:1px solid var(--border-soft);
   display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-2);
@@ -385,7 +389,25 @@ body[data-role="sep"] .card{cursor:pointer}
   border:1px solid var(--border-soft); border-radius:20px; padding:5px 6px 5px 12px;
   font-size:12px; font-weight:500;
 }
-.tag-chip.hot{background:rgba(245,99,0,.08); border-color:rgba(245,99,0,.18); color:var(--orange)}
+/* hàng chọn mức ưu tiên trong khối thẻ */
+.uu-hang{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:12px;
+  padding-top:12px; border-top:1px solid var(--border-soft)}
+.uu-nhan{font-size:11px; color:var(--text-2); white-space:nowrap}
+.uu-chon{display:flex; gap:6px; flex-wrap:wrap}
+.uu-chon button{
+  border-radius:20px; padding:5px 12px; font-size:12px; font-weight:500;
+  background:#fff; border:1px solid var(--border-soft); color:var(--text-2);
+  transition:background .4s var(--ease), color .4s var(--ease), border-color .4s var(--ease), transform .4s var(--ease);
+}
+.uu-chon button:hover:not([aria-pressed="true"]){border-color:var(--border); color:var(--text)}
+.uu-chon button:active{transform:scale(.96)}
+.uu-chon button[aria-pressed="true"]{border-color:transparent}
+.uu-chon button[aria-pressed="true"].uu-1{background:#f2f2f7; color:#6e6e73; border-color:#e3e3e8}
+.uu-chon button[aria-pressed="true"].uu-2{background:#fdf1dd; color:#8a5a00}
+.uu-chon button[aria-pressed="true"].uu-3{background:#fbdfcd; color:#b3450a}
+.uu-chon button[aria-pressed="true"].uu-4{background:#e8340c; color:#fff}
+.uu-chon.locked button{cursor:default}
+.uu-chon.locked button:not([aria-pressed="true"]){opacity:.4}
 .tag-chip button{
   width:18px; height:18px; border-radius:50%; color:var(--text-2);
   display:grid; place-items:center; flex:none;
@@ -672,7 +694,7 @@ var SEED = [
   {
     id:'t1', status:'todo', title:'Hiểu quy trình IT Sales tại Hàn Quốc',
     desc:'Từ tìm khách, tiếp cận, báo giá đến ký hợp đồng và bàn giao nhân sự.',
-    tags:['IT Sales','Nền tảng'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    tags:['IT Sales','Nền tảng'], priority:'Cao', assignee:'Sếp giao',
     due:'22/09/2026', estimate:'3h', progress:0,
     content:[
       'Nắm 5 bước chuẩn của một thương vụ IT tại Hàn: (1) Tìm nguồn khách qua job posting và mạng lưới. (2) Gọi/mail tiếp cận người quyết định. (3) Gặp mặt nắm yêu cầu kỹ thuật. (4) Báo giá theo man-month. (5) Ký hợp đồng và bàn giao nhân sự.',
@@ -688,7 +710,7 @@ var SEED = [
   {
     id:'t2', status:'todo', title:'Phân biệt các mô hình: Phái cử / Trọn gói / SI / SM',
     desc:'Hiểu bản chất từng mô hình để tư vấn đúng thứ khách cần.',
-    tags:['IT Sales','Mô hình'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    tags:['IT Sales','Mô hình'], priority:'Cao', assignee:'Sếp giao',
     due:'24/09/2026', estimate:'2h', progress:0,
     content:[
       'Phái cử (파견): đưa kỹ sư sang làm tại chỗ khách, tính tiền theo man-month, rủi ro thấp, biên lợi nhuận mỏng.',
@@ -737,7 +759,7 @@ var SEED = [
   {
     id:'t13', status:'todo', title:'Nghiên cứu sản phẩm ERP mới',
     desc:'Module Tài chính – hiểu flow kế toán, báo cáo, phân quyền.',
-    tags:['IT Sales','Sản phẩm'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    tags:['IT Sales','Sản phẩm'], priority:'Cao', assignee:'Sếp giao',
     due:'20/09/2026', estimate:'2h', progress:60,
     content:[
       'Tập trung vào 3 luồng chính: (1) Quy trình ghi nhận bút toán kép từ Mua hàng -> Kho -> Kế toán. (2) Cơ chế phân quyền theo vai trò (Admin / Kế toán trưởng / Kế toán viên). (3) Báo cáo quản trị P&L và Cashflow theo thời gian thực.',
@@ -759,7 +781,7 @@ var SEED = [
   {
     id:'t5', status:'doing', title:'Phân tích công ty A - Case study thực tế',
     desc:'Dựng hồ sơ khách: stack công nghệ, người quyết, nhu cầu thật sự.',
-    tags:['IT Sales','Case study'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    tags:['IT Sales','Case study'], priority:'Khẩn cấp', assignee:'Sếp giao',
     due:'18/09/2026', estimate:'5h', progress:60,
     content:[
       'Dựng hồ sơ công ty A gồm 4 phần: quy mô và ngành nghề, stack công nghệ đang dùng, sơ đồ người ra quyết định, và nhu cầu nhân sự 6 tháng tới.',
@@ -813,7 +835,7 @@ var SEED = [
   {
     id:'t8', status:'doing', title:'Hiểu cách báo giá - Tính man-month',
     desc:'Từ lương kỹ sư đến đơn giá bán: cộng chi phí, rủi ro và lợi nhuận.',
-    tags:['IT Sales','Báo giá'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    tags:['IT Sales','Báo giá'], priority:'Cao', assignee:'Sếp giao',
     due:'21/09/2026', estimate:'4h', progress:45,
     content:[
       'Công thức gốc: đơn giá bán = chi phí nhân sự + chi phí quản lý + dự phòng rủi ro + lợi nhuận mục tiêu. Man-month là một người làm một tháng.',
@@ -857,7 +879,7 @@ var SEED = [
   {
     id:'t11', status:'done', title:'Đạt TOPIK 6',
     desc:'Nền tảng ngôn ngữ để làm việc trực tiếp với khách Hàn.',
-    tags:['Ngôn ngữ','Đã xong'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    tags:['Ngôn ngữ','Đã xong'], priority:'Thấp', assignee:'Sếp giao',
     due:'20/05/2026', estimate:'—', progress:100,
     content:['Chứng chỉ tiếng Hàn cấp cao nhất, đủ để họp và đàm phán trực tiếp với khách hàng Hàn Quốc.'],
     goal:'Giao tiếp công việc không cần phiên dịch',
@@ -870,7 +892,7 @@ var SEED = [
   {
     id:'t12', status:'done', title:'Vận hành Bunjang/Joongna',
     desc:'Kinh nghiệm bán hàng thật: định giá, chốt đơn, chăm khách.',
-    tags:['Kinh doanh','Đã xong'], priority:'Bình thường', assignee:'Sếp giao',
+    tags:['Kinh doanh','Đã xong'], priority:'Thấp', assignee:'Sếp giao',
     due:'10/04/2026', estimate:'—', progress:100,
     content:['Bán hàng trên hai sàn thương mại Hàn Quốc: tự định giá, viết mô tả, thương lượng và chăm sóc khách sau bán.'],
     goal:'Hiểu tâm lý người mua Hàn Quốc',
@@ -954,6 +976,17 @@ function byId(id){
 }
 var STATUS_LABEL = { todo:'Cần làm', doing:'Đang làm', done:'Hoàn thành' };
 
+/* bốn mức ưu tiên, xếp từ nhẹ đến gấp — màu đậm dần theo thứ tự này */
+var MUC_UU_TIEN = ['Thấp', 'Bình thường', 'Cao', 'Khẩn cấp'];
+var MAU_CHAM = ['#8e8e93', '#d99100', '#e8730c', '#e8340c'];
+
+function bacUuTien(p){
+  var i = MUC_UU_TIEN.indexOf(p);
+  return i < 0 ? 1 : i;            /* không nhận ra thì coi là Bình thường */
+}
+function lopUuTien(p){ return 'uu-' + (bacUuTien(p) + 1); }
+function chamUuTien(p){ return MAU_CHAM[bacUuTien(p)]; }
+
 /* hạn chót "20/09/2026" -> "20/09" cho footer thẻ */
 function shortDue(d){
   var m = /^(\d{2})\/(\d{2})/.exec(d || '');
@@ -1021,6 +1054,10 @@ function datPill(loai, chu){
 function chuanHoa(){
   state.tasks.forEach(function(t){
     if(!t.by) t.by = 'sep';
+    /* thang cũ chỉ có hai nấc, đưa về thang bốn mức */
+    if(MUC_UU_TIEN.indexOf(t.priority) < 0){
+      t.priority = t.priority === 'Ưu tiên cao' ? 'Cao' : 'Bình thường';
+    }
     (t.comments || []).forEach(function(c){ if(!c.id) c.id = uid(); });
   });
   state.activity.forEach(function(a){ if(!a.id) a.id = uid(); });
@@ -1253,7 +1290,7 @@ function matches(t){
 
 function cardHTML(t){
   var tags = t.tags.map(function(x){ return '<span class="tag">' + esc(x) + '</span>'; }).join('');
-  if(t.priority === 'Ưu tiên cao') tags += '<span class="tag hot">Ưu tiên cao</span>';
+  tags += '<span class="tag ' + lopUuTien(t.priority) + '">' + esc(t.priority) + '</span>';
   var prog = '';
   if(t.status === 'doing' || (t.progress > 0 && t.progress < 100)){
     prog = '<div class="card-prog">' +
@@ -1421,9 +1458,22 @@ function renderModal(){
   var chips = t.tags.length ? t.tags.map(function(x, i){
     return '<span class="tag-chip">' + esc(x) +
       '<button data-rmtag="' + i + '" aria-label="Bỏ thẻ ' + esc(x) + '">' + ICONS.xs + '</button></span>';
-  }).join('') + '<span class="tag-chip' + (t.priority === 'Ưu tiên cao' ? ' hot' : '') + '">' +
-      esc(t.priority) + '</span>'
+  }).join('')
     : '<span class="tag-empty">Chưa có thẻ nào — thêm thẻ để dễ tìm và lọc.</span>';
+
+  /* hàng chọn mức ưu tiên — Sếp ra đề nên Sếp đặt mức */
+  var hangUuTien =
+    '<div class="uu-hang">' +
+      '<span class="uu-nhan">Mức ưu tiên</span>' +
+      '<div class="uu-chon' + (editable ? '' : ' locked') + '">' +
+        MUC_UU_TIEN.map(function(m){
+          var dang = t.priority === m;
+          return '<button data-uutien="' + esc(m) + '" class="' + lopUuTien(m) + '"' +
+            ' aria-pressed="' + (dang ? 'true' : 'false') + '"' +
+            (editable ? '' : ' disabled') + '>' + esc(m) + '</button>';
+        }).join('') +
+      '</div>' +
+    '</div>';
   /* gợi ý các thẻ đã dùng ở nhiệm vụ khác */
   var used = {}, pool = [];
   t.tags.forEach(function(x){ used[x] = 1; });
@@ -1494,6 +1544,7 @@ function renderModal(){
         '<span class="sec-note">' + t.tags.length + '/' + MAX_TAGS + ' thẻ</span></div>' +
       '<div class="tag-box">' +
         '<div class="tag-row">' + chips + '</div>' +
+        hangUuTien +
         '<form class="tag-form" id="tagForm">' +
           '<input id="tagInput" maxlength="24" autocomplete="off" placeholder="Tên thẻ mới…"' +
             (t.tags.length >= MAX_TAGS ? ' disabled placeholder="Đã đủ ' + MAX_TAGS + ' thẻ"' : '') + '>' +
@@ -1571,7 +1622,7 @@ function renderFoot(t){
     : '<button class="btn btn-primary" id="btnClose">Xong</button>';
 
   $('#modalFoot').innerHTML =
-    '<div class="status"><span class="ball"' + (t.priority === 'Ưu tiên cao' ? '' : ' style="background:var(--text-2)"') + '></span>' +
+    '<div class="status"><span class="ball" style="background:' + chamUuTien(t.priority) + '"></span>' +
       '<span id="footText">' + esc(t.priority) + ' · ' + esc(t.estimate) + ' · ' + t.progress + '% hoàn thành</span></div>' +
     '<div class="acts">' + nut + '</div>';
 }
@@ -1637,6 +1688,15 @@ backdrop.addEventListener('click', function(e){
   /* chọn trạng thái trực tiếp */
   if(el.dataset.goto){
     doiTrangThai(t, el.dataset.goto);
+    save(); render(); renderModal();
+    return;
+  }
+
+  /* đổi mức ưu tiên */
+  if(el.dataset.uutien){
+    if(t.priority === el.dataset.uutien) return;
+    t.priority = el.dataset.uutien;
+    logActivity(roleName(state.role) + ' đặt <b>' + esc(t.title) + '</b> ở mức <i>' + esc(t.priority) + '</i>');
     save(); render(); renderModal();
     return;
   }
