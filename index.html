@@ -111,16 +111,6 @@ button{cursor:pointer; border:none; background:none; padding:0}
 @keyframes tho{50%{opacity:.3}}
 @media(max-width:900px){.sync-pill span:last-child{display:none} .sync-pill{padding:0 9px}}
 
-/* chip cho biết đang vào với tên ai */
-.me{
-  display:inline-flex; align-items:center; gap:7px; height:28px; padding:3px 12px 3px 3px;
-  border-radius:14px; background:var(--fill); font-size:12.5px; font-weight:500; color:var(--text);
-  white-space:nowrap; transition:background .4s var(--ease);
-}
-.me:hover{background:var(--fill-hover)}
-.me[hidden]{display:none}   /* class display đè mất thuộc tính hidden nếu không nói rõ */
-.me .avatar{width:22px; height:22px; font-size:9px}
-
 /* màn hình chọn người dùng — chưa chọn thì chưa làm gì được */
 .gate{
   position:fixed; inset:0; z-index:150; background:var(--bg);
@@ -609,10 +599,6 @@ body[data-role="sep"] .card{cursor:pointer}
       <span class="sync-dot"></span><span id="syncText">Đang nối…</span>
     </button>
 
-    <!-- đang vào với tên ai; bấm vào để đổi người -->
-    <button class="me" id="mePill" type="button" title="Đổi người dùng">
-      <span class="avatar" id="meAvatar">AT</span><span id="meName">Sếp</span>
-    </button>
   </div>
 </header>
 
@@ -717,7 +703,7 @@ body[data-role="sep"] .card{cursor:pointer}
         </span>
       </button>
     </div>
-    <div class="gate-foot">Chọn xong vẫn đổi lại được ở góc trên bên phải.</div>
+    <div class="gate-foot">Muốn vào bằng tên khác thì tải lại trang.</div>
   </div>
 </div>
 
@@ -998,7 +984,7 @@ function load(){
       var p = JSON.parse(raw);
       state.tasks = Array.isArray(p.tasks) && p.tasks.length ? p.tasks : clone(SEED);
       state.activity = Array.isArray(p.activity) ? p.activity : clone(SEED_ACTIVITY);
-      state.role = (p.role === 'huy' || p.role === 'sep') ? p.role : null;
+      /* vai trò không nhớ qua lần mở trang: mỗi lần vào đều phải chọn lại */
       return;
     }
   }catch(e){ /* dữ liệu hỏng thì dựng lại từ đầu */ }
@@ -2171,23 +2157,14 @@ searchInput.addEventListener('input', function(){
 
 function paintRole(){
   document.body.setAttribute('data-role', state.role || '');
-  var pill = $('#mePill');
-  if(!pill) return;
-  pill.hidden = !state.role;
-  if(!state.role) return;
-  var av = $('#meAvatar');
-  av.textContent = roleInitials(state.role);
-  av.className = 'avatar' + (state.role === 'huy' ? ' huy' : '');
-  $('#meName').textContent = roleName(state.role);
 }
 
-/* ---------- cổng chọn người dùng ---------- */
+/* ---------- cổng chọn người dùng ----------
+   Chọn một lần cho mỗi lần mở trang. Trong phiên không đổi được nữa —
+   muốn vào bằng tên khác thì tải lại trang. */
 var gate = $('#gate');
 
 function moCong(){
-  $$('.gate-card').forEach(function(c){
-    c.setAttribute('aria-current', c.dataset.vao === state.role ? 'true' : 'false');
-  });
   gate.classList.remove('an');
   document.body.style.overflow = 'hidden';
 }
@@ -2198,17 +2175,11 @@ function dongCong(){
 
 gate.addEventListener('click', function(e){
   var b = e.target.closest('[data-vao]');
-  if(!b) return;
-  var moi = b.dataset.vao;
-  var doiNguoi = state.role && state.role !== moi;
-  state.role = moi;
-  save(); paintRole(); render();
-  if(openId) renderModal();
+  if(!b || state.role) return;          /* chọn rồi thì thôi */
+  state.role = b.dataset.vao;
+  paintRole(); render();
   dongCong();
-  if(doiNguoi) toast('Đang vào với tên ' + roleName(moi));
 });
-
-$('#mePill').addEventListener('click', moCong);
 
 document.addEventListener('keydown', function(e){
   if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
@@ -2227,7 +2198,7 @@ load();
 chuanHoa();
 render();
 paintRole();
-if(state.role) dongCong(); else moCong();   /* chưa chọn tên thì chưa thao tác được gì */
+moCong();   /* mỗi lần vào trang đều phải chọn tên trước */
 /* làm mới nhãn thời gian mỗi phút cho timeline luôn đúng */
 setInterval(renderTimeline, 60000);
 

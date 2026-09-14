@@ -24,7 +24,8 @@ Mở bằng trình duyệt là chạy — kể cả khi mở trực tiếp từ 
 - Board Kanban 3 cột: Cần học / Đang học / Hoàn thành, kéo thả được bằng chuột và cảm ứng
 - Modal chi tiết từng nhiệm vụ: người giao, hạn chót, ước tính, tiến độ, nội dung học tập,
   thẻ phân loại, ghi chú tự động lưu, tài liệu đính kèm, trao đổi Sếp ↔ Huy
-- Vào trang phải chọn tên Sếp hay Huy trước — Sếp ra đề, Huy làm và báo tiến độ
+- Mỗi lần vào trang phải chọn tên Sếp hay Huy trước; trong phiên không đổi được,
+  muốn đổi thì tải lại trang. Sếp ra đề, Huy làm và báo tiến độ
 - Tìm kiếm (⌘K), timeline hoạt động, Esc để đóng
 
 ## Dữ liệu
