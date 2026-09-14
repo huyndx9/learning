@@ -417,6 +417,7 @@ body[data-role="sep"] .card{cursor:pointer}
 .file-meta{flex:1; min-width:0}
 .file-name{font-size:13px; font-weight:500; letter-spacing:-.01em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .file-sub{font-size:11px; color:var(--text-2); margin-top:2px}
+.file-warn{color:var(--orange)}
 .file-act{display:flex; gap:4px; flex:none}
 .add-file{
   width:100%; margin-top:8px; height:38px; border-radius:var(--r-sm);
@@ -1041,6 +1042,39 @@ function chupLai(){
   state.activity.forEach(function(a){ anhChup.activity[a.id] = 1; });
 }
 
+/* ---------- kho tài liệu ---------- */
+var KHO = 'tai-lieu';
+
+/* tên tệp có dấu tiếng Việt hoặc khoảng trắng thì kho từ chối, phải chuẩn hoá */
+function tenAnToan(ten){
+  return ten.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+            .replace(/[^A-Za-z0-9._-]/g, '_').slice(-80);
+}
+
+function taiLenTep(tep, maNhiemVu){
+  var duong = maNhiemVu + '/' + uid() + '-' + tenAnToan(tep.name);
+  return db.storage.from(KHO).upload(duong, tep, { upsert:false })
+    .then(function(k){ if(k.error) throw k.error; return duong; });
+}
+
+function taiVeTep(f){
+  return db.storage.from(KHO).download(f.path).then(function(k){
+    if(k.error) throw k.error;
+    /* đi qua blob để trình duyệt lưu thẳng, không mở tab mới */
+    var url = URL.createObjectURL(k.data);
+    var a = document.createElement('a');
+    a.href = url; a.download = f.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  });
+}
+
+function xoaTepKho(duongDan){
+  if(!db || !duongDan) return Promise.resolve();
+  return db.storage.from(KHO).remove([duongDan]).catch(function(e){ console.error(e); });
+}
+
 /* ---------- đọc toàn bộ bảng ---------- */
 function taiVe(){
   return Promise.all([
@@ -1183,6 +1217,9 @@ function addTask(status){
 function removeTask(){
   var t = byId(openId);
   if(!t) return;
+  if(cheDo === 'chung'){
+    (t.files || []).forEach(function(f){ if(f.path) xoaTepKho(f.path); });
+  }
   state.tasks = state.tasks.filter(function(x){ return x.id !== t.id; });
   logActivity(roleName(state.role) + ' xoá nhiệm vụ <b>' + esc(t.title) + '</b>');
   closeModal(); save(); render();
@@ -1393,7 +1430,8 @@ function renderModal(){
         '<span class="file-ico">' + esc(f.type) + '</span>' +
         '<div class="file-meta">' +
           '<div class="file-name">' + esc(f.name) + '</div>' +
-          '<div class="file-sub">' + esc(f.type) + ' · ' + esc(f.size) + '</div>' +
+          '<div class="file-sub">' + esc(f.type) + ' · ' + esc(f.size) +
+            (f.path ? '' : ' · <span class="file-warn">chưa có nội dung</span>') + '</div>' +
         '</div>' +
         '<div class="file-act">' +
           '<button class="btn btn-ghost" data-download="' + i + '">Tải</button>' +
@@ -1599,13 +1637,27 @@ backdrop.addEventListener('click', function(e){
   /* tài liệu */
   if(el.id === 'addFile'){ $('#filePicker').click(); return; }
   if(el.dataset.download != null){
-    toast('Tệp mô phỏng — bản thật sẽ tải khi cắm Supabase');
+    var f = t.files[Number(el.dataset.download)];
+    if(!f) return;
+    if(!f.path){
+      toast('Tệp này mới có tên, chưa có nội dung — đính kèm lại để lưu bản thật');
+      return;
+    }
+    if(cheDo !== 'chung'){ toast('Chưa nối được máy chủ nên chưa tải về được'); return; }
+    el.textContent = '…';
+    taiVeTep(f).catch(function(err){
+      console.error('Tải về thất bại:', err);
+      toast('Không tải về được — tệp có thể đã bị xoá khỏi kho');
+    }).then(function(){ el.textContent = 'Tải'; });
     return;
   }
   if(el.dataset.rmfile != null){
     var idx = Number(el.dataset.rmfile);
-    var removed = t.files.splice(idx, 1)[0];
-    if(removed) logActivity(roleName(state.role) + ' gỡ tệp <b>' + esc(removed.name) + '</b>');
+    var daGo = t.files.splice(idx, 1)[0];
+    if(daGo){
+      logActivity(roleName(state.role) + ' gỡ tệp <b>' + esc(daGo.name) + '</b>');
+      if(daGo.path && cheDo === 'chung') xoaTepKho(daGo.path);
+    }
     save(); render(); renderModal();
     return;
   }
@@ -1669,21 +1721,57 @@ function applyFormat(kind){
 }
 
 /* thêm tài liệu (mô phỏng — chỉ lưu tên và dung lượng) */
+var GIOI_HAN_TEP = 20 * 1024 * 1024;   /* 20MB, đủ cho tài liệu công việc */
+
+function moTaTep(f){
+  var ext = (f.name.split('.').pop() || 'FILE').toUpperCase().slice(0, 4);
+  return {
+    name: f.name,
+    size: f.size > 1048576 ? (f.size/1048576).toFixed(1) + ' MB'
+                           : Math.max(1, Math.round(f.size/1024)) + ' KB',
+    type: ext === 'DOCX' ? 'DOC' : (ext === 'XLSX' ? 'XLS' : (ext === 'PPTX' ? 'PPT' : ext))
+  };
+}
+
 $('#filePicker').addEventListener('change', function(e){
   var t = byId(openId);
-  if(!t) return;
-  Array.prototype.forEach.call(e.target.files, function(f){
-    var ext = (f.name.split('.').pop() || 'FILE').toUpperCase().slice(0, 4);
-    t.files.push({
-      name: f.name,
-      size: f.size > 1048576 ? (f.size/1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(f.size/1024)) + ' KB',
-      type: ext === 'DOCX' ? 'DOC' : (ext === 'XLSX' ? 'XLS' : (ext === 'PPTX' ? 'PPT' : ext))
-    });
-  });
-  logActivity(roleName(state.role) + ' đính kèm tài liệu vào <b>' + esc(t.title) + '</b>');
-  save(); render(); renderModal();
+  var dsTep = Array.prototype.slice.call(e.target.files);
   e.target.value = '';
-  toast('Đã thêm tài liệu (mô phỏng)');
+  if(!t || !dsTep.length) return;
+
+  var quaNang = dsTep.filter(function(f){ return f.size > GIOI_HAN_TEP; });
+  if(quaNang.length){
+    toast('Tệp "' + quaNang[0].name + '" nặng quá 20MB');
+    dsTep = dsTep.filter(function(f){ return f.size <= GIOI_HAN_TEP; });
+    if(!dsTep.length) return;
+  }
+
+  /* chưa nối máy chủ thì chỉ ghi được tên tệp, nói thẳng để khỏi hiểu nhầm */
+  if(cheDo !== 'chung'){
+    dsTep.forEach(function(f){ t.files.push(moTaTep(f)); });
+    logActivity(roleName(state.role) + ' đính kèm tài liệu vào <b>' + esc(t.title) + '</b>');
+    save(); render(); renderModal();
+    toast('Mới ghi được tên tệp — cần nối máy chủ mới lưu được nội dung');
+    return;
+  }
+
+  toast(dsTep.length > 1 ? 'Đang tải ' + dsTep.length + ' tệp lên…' : 'Đang tải tệp lên…');
+  Promise.all(dsTep.map(function(f){
+    return taiLenTep(f, t.id).then(function(duong){
+      var m = moTaTep(f); m.path = duong; return m;
+    });
+  })).then(function(ds){
+    var t2 = byId(t.id);
+    if(!t2) return;
+    ds.forEach(function(m){ t2.files.push(m); });
+    logActivity(roleName(state.role) + ' đính kèm tài liệu vào <b>' + esc(t2.title) + '</b>');
+    save(); render();
+    if(openId === t2.id) renderModal();
+    toast(ds.length > 1 ? 'Đã tải lên ' + ds.length + ' tệp' : 'Đã tải lên "' + ds[0].name + '"');
+  }).catch(function(err){
+    console.error('Tải lên thất bại:', err);
+    toast('Không tải lên được — ' + (err && err.message ? err.message : 'kiểm tra kho tài liệu trong Supabase'));
+  });
 });
 
 /* gửi trao đổi */
