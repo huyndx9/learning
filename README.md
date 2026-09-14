@@ -25,7 +25,8 @@ Mở bằng trình duyệt là chạy — kể cả khi mở trực tiếp từ 
 - Modal chi tiết từng nhiệm vụ: người giao, hạn chót, ước tính, tiến độ, nội dung học tập,
   thẻ phân loại, ghi chú tự động lưu, tài liệu đính kèm, trao đổi Sếp ↔ Huy
 - Mỗi lần vào trang phải chọn tên Sếp hay Huy trước; trong phiên không đổi được,
-  muốn đổi thì tải lại trang. Sếp ra đề, Huy làm và báo tiến độ
+  muốn đổi thì tải lại trang. Huy có đủ quyền; Sếp chỉ không chuyển được
+  trạng thái nhiệm vụ, vì báo việc đang tới đâu là phần của Huy
 - Tìm kiếm (⌘K), timeline hoạt động, Esc để đóng
 
 ## Dữ liệu
