@@ -165,6 +165,15 @@ button{cursor:pointer; border:none; background:none; padding:0}
   text-align:center; color:var(--text-2); font-size:12.5px;
 }
 
+.col-tools{display:flex; align-items:center; gap:6px}
+.col-add{
+  width:24px; height:24px; border-radius:50%; background:var(--fill); color:var(--text-2);
+  display:grid; place-items:center; flex:none;
+  transition:background .4s var(--ease), color .4s var(--ease), transform .4s var(--ease);
+}
+.col-add:hover{background:var(--accent); color:#fff}
+.col-add:active{transform:scale(.92)}
+
 /* thẻ công việc */
 .card{
   background:var(--card); border:1px solid rgba(0,0,0,.05); border-radius:var(--r-sm);
@@ -202,6 +211,16 @@ button{cursor:pointer; border:none; background:none; padding:0}
   transform:scale(1.02) rotate(1deg); box-shadow:0 12px 40px rgba(0,0,0,.16);
   border-radius:var(--r-sm); background:var(--card); opacity:.98;
 }
+
+/* xoá nhiệm vụ — đặt cuối modal, phải bấm hai lần */
+.danger-row{display:flex; justify-content:flex-end; margin-top:22px}
+.btn-danger{
+  height:32px; padding:0 14px; border-radius:16px; font-size:12.5px; font-weight:500;
+  color:var(--text-2); background:transparent;
+  transition:background .4s var(--ease), color .4s var(--ease);
+}
+.btn-danger:hover{background:rgba(255,59,48,.08); color:#ff3b30}
+.btn-danger.armed{background:#ff3b30; color:#fff}
 
 /* timeline hoạt động */
 .aside{position:sticky; top:80px}
@@ -513,21 +532,36 @@ button{cursor:pointer; border:none; background:none; padding:0}
       <section class="col" data-status="todo">
         <div class="col-head">
           <span class="col-title">01 — Cần học</span>
-          <span class="col-count" data-count="todo">0</span>
+          <span class="col-tools">
+            <span class="col-count" data-count="todo">0</span>
+            <button class="col-add" data-add="todo" aria-label="Thêm nhiệm vụ vào Cần học" title="Thêm nhiệm vụ">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3.5v9M3.5 8h9"/></svg>
+            </button>
+          </span>
         </div>
         <div class="col-body" data-body="todo"></div>
       </section>
       <section class="col" data-status="doing">
         <div class="col-head">
           <span class="col-title">02 — Đang học</span>
-          <span class="col-count" data-count="doing">0</span>
+          <span class="col-tools">
+            <span class="col-count" data-count="doing">0</span>
+            <button class="col-add" data-add="doing" aria-label="Thêm nhiệm vụ vào Đang học" title="Thêm nhiệm vụ">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3.5v9M3.5 8h9"/></svg>
+            </button>
+          </span>
         </div>
         <div class="col-body" data-body="doing"></div>
       </section>
       <section class="col" data-status="done">
         <div class="col-head">
           <span class="col-title">03 — Hoàn thành</span>
-          <span class="col-count" data-count="done">0</span>
+          <span class="col-tools">
+            <span class="col-count" data-count="done">0</span>
+            <button class="col-add" data-add="done" aria-label="Thêm nhiệm vụ vào Hoàn thành" title="Thêm nhiệm vụ">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3.5v9M3.5 8h9"/></svg>
+            </button>
+          </span>
         </div>
         <div class="col-body" data-body="done"></div>
       </section>
@@ -867,7 +901,59 @@ function roleName(r){ return r === 'huy' ? 'Huy' : 'Sếp'; }
 function roleInitials(r){ return r === 'huy' ? 'HU' : 'AT'; }
 
 /* ============================================================
-   4. RENDER BOARD
+   4. TẠO VÀ XOÁ NHIỆM VỤ
+   ============================================================ */
+function uid(){ return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+/* hạn chót mặc định: một tuần kể từ hôm nay, dạng dd/mm/yyyy */
+function hanMacDinh(songay){
+  var d = new Date();
+  d.setDate(d.getDate() + songay);
+  return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear();
+}
+
+function addTask(status){
+  var t = {
+    id: uid(), status: status, by: state.role,
+    title: 'Nhiệm vụ mới',
+    desc: 'Bấm vào dòng này để sửa mô tả ngắn.',
+    tags: ['IT Sales'],
+    priority: 'Bình thường',
+    assignee: state.role === 'sep' ? 'Sếp giao' : 'Huy tự thêm',
+    due: hanMacDinh(7), estimate: '2h',
+    progress: status === 'done' ? 100 : 0,
+    content: ['Ghi rõ nội dung cần học ở đây: học cái gì, học từ nguồn nào, và học xong thì làm được gì.'],
+    goal: 'Chưa đặt mục tiêu',
+    criteria: 'Chưa đặt tiêu chí',
+    customer: 'Chưa gắn khách hàng',
+    note: '', files: [],
+    suggests: ['💡 Insight: ghi lại điều vừa hiểu ra', '❓ Hỏi Sếp chỗ còn vướng'],
+    comments: []
+  };
+  state.tasks.unshift(t);
+  logActivity(roleName(state.role) + ' thêm nhiệm vụ mới vào <i>' + STATUS_LABEL[status] + '</i>');
+  save(); render(); openModal(t.id);
+  /* bôi sẵn tiêu đề để gõ đè luôn */
+  var h = $('#mTitle');
+  if(h && h.isContentEditable){
+    h.focus();
+    var r = document.createRange(); r.selectNodeContents(h);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  }
+  toast('Đã thêm nhiệm vụ — sửa tiêu đề rồi điền nội dung nhé');
+}
+
+function removeTask(){
+  var t = byId(openId);
+  if(!t) return;
+  state.tasks = state.tasks.filter(function(x){ return x.id !== t.id; });
+  logActivity(roleName(state.role) + ' xoá nhiệm vụ <b>' + esc(t.title) + '</b>');
+  closeModal(); save(); render();
+  toast('Đã xoá "' + t.title + '"');
+}
+
+/* ============================================================
+   5. RENDER BOARD
    ============================================================ */
 var keyword = '';
 
@@ -894,7 +980,7 @@ function cardHTML(t){
       '<div class="card-tags">' + tags + '</div>' +
       prog +
       '<div class="card-foot">' +
-        '<span>SẾP</span><span class="dot-sep"></span>' +
+        '<span>' + (t.by === 'huy' ? 'HUY' : 'SẾP') + '</span><span class="dot-sep"></span>' +
         '<span>' + esc(shortDue(t.due)) + '</span><span class="dot-sep"></span>' +
         '<span>' + fileTxt + '</span>' +
       '</div>' +
@@ -945,7 +1031,7 @@ function renderTimeline(){
 }
 
 /* ============================================================
-   5. MODAL CHI TIẾT
+   6. MODAL CHI TIẾT
    ============================================================ */
 var openId = null;
 var noteTimer = null;
@@ -1000,7 +1086,8 @@ function renderModal(){
   var t = byId(openId);
   if(!t) return;
   var keepScroll = $('#modalScroll').scrollTop;   /* vẽ lại mà không nhảy về đầu */
-  var editable = state.role === 'sep';   /* chỉ Sếp mới sửa được đề bài */
+  /* Sếp sửa được mọi đề bài; ai tự thêm nhiệm vụ thì sửa được nhiệm vụ của mình */
+  var editable = state.role === 'sep' || t.by === state.role;
 
   /* ---- hàng tag: pill đầu tiên tô nền, các tag sau dạng chữ + dấu chấm ---- */
   var rest = [STATUS_LABEL[t.status], t.priority];
@@ -1013,7 +1100,8 @@ function renderModal(){
   var meta =
     '<div class="meta-cell">' +
       '<div class="meta-head">' + ICONS.person + '<span class="meta-label">Người giao</span></div>' +
-      '<div class="meta-value"><span class="avatar">AT</span>' + esc(t.assignee) + '</div>' +
+      '<div class="meta-value"><span class="avatar' + (t.by === 'huy' ? ' huy' : '') + '">' +
+        roleInitials(t.by === 'huy' ? 'huy' : 'sep') + '</span>' + esc(t.assignee) + '</div>' +
     '</div>' +
     '<div class="meta-cell">' +
       '<div class="meta-head">' + ICONS.calendar + '<span class="meta-label">Hạn chót</span></div>' +
@@ -1156,6 +1244,10 @@ function renderModal(){
         '<input id="chatInput" placeholder="Viết cho ' + (state.role === 'sep' ? 'Huy' : 'Sếp') + '…" autocomplete="off">' +
         '<button type="submit" class="btn btn-secondary">Gửi</button>' +
       '</form>' +
+    '</div>' +
+
+    '<div class="danger-row">' +
+      '<button class="btn-danger" id="btnDelete">Xoá nhiệm vụ này</button>' +
     '</div>';
 
   $('#modalScroll').scrollTop = keepScroll;
@@ -1183,7 +1275,7 @@ function flushNote(){
 }
 
 /* ============================================================
-   6. TƯƠNG TÁC TRONG MODAL
+   7. TƯƠNG TÁC TRONG MODAL
    ============================================================ */
 var backdrop = $('#backdrop');
 
@@ -1198,6 +1290,18 @@ backdrop.addEventListener('click', function(e){
   if(!el) return;
 
   if(el.id === 'mClose' || el.id === 'btnClose'){ closeModal(); return; }
+
+  /* xoá nhiệm vụ: phải bấm hai lần cho chắc */
+  if(el.id === 'btnDelete'){
+    if(el.classList.contains('armed')){ removeTask(); return; }
+    el.classList.add('armed');
+    el.textContent = 'Bấm lần nữa để xoá hẳn';
+    setTimeout(function(){
+      var b = $('#btnDelete');
+      if(b){ b.classList.remove('armed'); b.textContent = 'Xoá nhiệm vụ này'; }
+    }, 4000);
+    return;
+  }
 
   /* nút chính: chuyển trạng thái */
   if(el.id === 'btnNext'){
@@ -1361,7 +1465,7 @@ backdrop.addEventListener('focusout', function(e){
     if(!val || t[field] === val) return;
     t[field] = val;
   }
-  logActivity('Sếp chỉnh sửa <b>' + esc(t.title) + '</b>');
+  logActivity(roleName(state.role) + ' chỉnh sửa <b>' + esc(t.title) + '</b>');
   save(); render(); renderTimeline();
 });
 
@@ -1374,7 +1478,7 @@ function moveTask(t, to){
 }
 
 /* ============================================================
-   7. KÉO THẢ — chạy được cả chuột lẫn cảm ứng
+   8. KÉO THẢ — chạy được cả chuột lẫn cảm ứng
    ============================================================ */
 var board = $('#board');
 var drag = null;
@@ -1382,7 +1486,7 @@ var drag = null;
 board.addEventListener('pointerdown', function(e){
   if(e.button !== undefined && e.button !== 0) return;
   var card = e.target.closest('.card');
-  if(!card) return;
+  if(!card || e.target.closest('.col-add')) return;
 
   var rect = card.getBoundingClientRect();
   drag = {
@@ -1488,6 +1592,12 @@ function endDrag(e){
   render();
 }
 
+/* nút + trên đầu mỗi cột */
+board.addEventListener('click', function(e){
+  var b = e.target.closest('.col-add');
+  if(b) addTask(b.dataset.add);
+});
+
 /* mở bằng bàn phím cho dễ tiếp cận */
 board.addEventListener('keydown', function(e){
   var card = e.target.closest('.card');
@@ -1495,7 +1605,7 @@ board.addEventListener('keydown', function(e){
 });
 
 /* ============================================================
-   8. TÌM KIẾM · VAI TRÒ · PHÍM TẮT
+   9. TÌM KIẾM · VAI TRÒ · PHÍM TẮT
    ============================================================ */
 var searchInput = $('#search');
 searchInput.addEventListener('input', function(){
@@ -1536,7 +1646,7 @@ document.addEventListener('keydown', function(e){
 });
 
 /* ============================================================
-   9. KHỞI ĐỘNG
+   10. KHỞI ĐỘNG
    ============================================================ */
 load();
 render();
