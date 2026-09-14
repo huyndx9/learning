@@ -1030,9 +1030,6 @@ function esc(s){
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-/* Sếp ra đề nên sửa và xoá được tất cả; ai tự thêm thì lo nhiệm vụ của mình */
-function quyenSua(t){ return !!t && (state.role === 'sep' || t.by === state.role); }
-
 function byId(id){
   for(var i=0;i<state.tasks.length;i++){ if(state.tasks[i].id === id) return state.tasks[i]; }
   return null;
@@ -1376,10 +1373,8 @@ function cardHTML(t){
       '<div class="card-tags">' + tags + '</div>' +
       prog +
       '<div class="card-foot">' +
-        (quyenSua(t)
-          ? '<button class="card-del" data-del="' + t.id + '" aria-label="Xoá nhiệm vụ" title="Xoá nhiệm vụ">' +
-              ICONS.racNho + '</button>'
-          : '') +
+        '<button class="card-del" data-del="' + t.id + '" aria-label="Xoá nhiệm vụ" title="Xoá nhiệm vụ">' +
+          ICONS.racNho + '</button>' +
         '<span>' + (t.by === 'huy' ? 'HUY' : 'SẾP') + '</span><span class="dot-sep"></span>' +
         '<span>' + esc(shortDue(t.due)) + '</span><span class="dot-sep"></span>' +
         '<span>' + fileTxt + '</span>' +
@@ -1490,8 +1485,10 @@ function renderModal(){
   if(!t) return;
   var keepScroll = $('#modalScroll').scrollTop;   /* vẽ lại mà không nhảy về đầu */
   /* Sếp sửa được mọi đề bài; ai tự thêm nhiệm vụ thì sửa được nhiệm vụ của mình */
-  var editable = quyenSua(t);
-  var khoa = !duocDoiTrangThai();   /* vai Sếp không chuyển trạng thái */
+  /* Cả hai đều sửa và xoá được mọi nhiệm vụ. Vai Sếp chỉ mất đúng một thứ:
+     chuyển trạng thái — việc báo công việc đang tới đâu là của Huy. */
+  var editable = true;
+  var khoa = !duocDoiTrangThai();
 
   /* ---- hàng tag: pill đầu tiên tô nền, các tag sau dạng chữ + dấu chấm ---- */
   var rest = [STATUS_LABEL[t.status], t.priority];
@@ -1636,7 +1633,7 @@ function renderModal(){
 
     '<div class="m-section">' +
       '<div class="sec-head"><span class="sec-label">' + ICONS.book + 'Nội dung học tập</span>' +
-        (editable ? '<span class="sec-note">Sếp sửa trực tiếp</span>' : '') + '</div>' +
+        '<span class="sec-note">Sửa trực tiếp được</span>' + '</div>' +
       '<div class="sec-body">' + content + subs + '</div>' +
     '</div>' +
 
@@ -1665,11 +1662,10 @@ function renderModal(){
     '</div>' +
 
     '<div class="m-section">' +
-      '<div class="sec-head"><span class="sec-label">' + ICONS.gauge + 'Cập nhật tiến độ</span>' +
-        (khoa ? '<span class="sec-note">🔒 Chỉ Huy cập nhật</span>' : '') + '</div>' +
+      '<div class="sec-head"><span class="sec-label">' + ICONS.gauge + 'Cập nhật tiến độ</span></div>' +
       '<div class="prog-edit">' +
         '<input type="range" id="progRange" min="0" max="100" step="5" value="' + t.progress + '"' +
-          (khoa ? ' disabled' : '') + ' style="--fill-pct:' + t.progress + '%">' +
+          ' style="--fill-pct:' + t.progress + '%">' +
         '<span class="val" id="progVal">' + t.progress + '%</span>' +
       '</div>' +
     '</div>' +
@@ -1851,7 +1847,9 @@ backdrop.addEventListener('change', function(e){
   if(e.target.id !== 'progRange') return;
   var t = byId(openId); if(!t) return;
   /* kéo tới 100% thì tự chuyển sang Hoàn thành */
-  var moc = t.progress === 100 ? 'done' : (t.progress > 0 && t.status === 'todo' ? 'doing' : null);
+  var moc = duocDoiTrangThai()
+    ? (t.progress === 100 ? 'done' : (t.progress > 0 && t.status === 'todo' ? 'doing' : null))
+    : null;
   if(!moc || !doiTrangThai(t, moc)){
     logActivity(roleName(state.role) + ' cập nhật tiến độ <b>' + esc(t.title) + '</b> lên ' + t.progress + '%');
   }
