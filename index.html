@@ -232,15 +232,15 @@ body[data-role="sep"] .card{cursor:pointer}
   border-radius:var(--r-sm); background:var(--card); opacity:.98;
 }
 
-/* xoá nhiệm vụ — đặt cuối modal, phải bấm hai lần */
-.danger-row{display:flex; justify-content:flex-end; margin-top:22px}
-.btn-danger{
-  height:32px; padding:0 14px; border-radius:16px; font-size:12.5px; font-weight:500;
-  color:var(--text-2); background:transparent;
-  transition:background .4s var(--ease), color .4s var(--ease);
+/* xoá nhiệm vụ — nằm cạnh nút đóng, phải bấm hai lần mới xoá */
+.m-del{
+  height:32px; min-width:32px; padding:0; border-radius:16px; background:var(--fill);
+  color:var(--text-2); display:inline-flex; align-items:center; justify-content:center;
+  gap:6px; font-size:12.5px; font-weight:500; flex:none; overflow:hidden; white-space:nowrap;
+  transition:background .4s var(--ease), color .4s var(--ease), padding .4s var(--ease);
 }
-.btn-danger:hover{background:rgba(255,59,48,.08); color:#ff3b30}
-.btn-danger.armed{background:#ff3b30; color:#fff}
+.m-del:hover{background:rgba(255,59,48,.1); color:#ff3b30}
+.m-del.armed{background:#ff3b30; color:#fff; padding:0 14px}
 
 /* timeline hoạt động */
 .aside{position:sticky; top:80px}
@@ -1388,6 +1388,7 @@ var ICONS = {
   gauge:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 11a5.5 5.5 0 1110 0"/><path d="M8 11l2.5-3"/></svg>',
   x:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>',
   flag:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14V3M4 3.5h7.5l-1.6 2.6 1.6 2.6H4"/></svg>',
+  rac:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.2a1 1 0 001 .8h3.8a1 1 0 001-.8l.6-8.2M6.8 7v4M9.2 7v4"/></svg>',
   tag:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 7.4V3a.5.5 0 01.5-.5h4.4a1 1 0 01.7.3l5.1 5.1a1 1 0 010 1.4l-4.4 4.4a1 1 0 01-1.4 0L2.8 8.6a1 1 0 01-.3-.7z"/><circle cx="5.6" cy="5.6" r=".9" fill="currentColor" stroke="none"/></svg>',
   xs:'<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>'
 };
@@ -1519,7 +1520,10 @@ function renderModal(){
   $('#modalScroll').innerHTML =
     '<div class="m-top">' +
       '<div class="m-tags">' + tagRow + '</div>' +
-      '<button class="m-close" id="mClose" aria-label="Đóng">' + ICONS.x + '</button>' +
+      '<div style="display:flex; align-items:center; gap:8px; flex:none">' +
+        (editable ? '<button class="m-del" id="btnDelete" aria-label="Xoá nhiệm vụ" title="Xoá nhiệm vụ">' + ICONS.rac + '</button>' : '') +
+        '<button class="m-close" id="mClose" aria-label="Đóng">' + ICONS.x + '</button>' +
+      '</div>' +
     '</div>' +
     '<h2 class="m-title" id="mTitle"' + (editable ? ' contenteditable="true" data-edit="title"' : '') + '>' + esc(t.title) + '</h2>' +
     '<p class="m-desc"' + (editable ? ' contenteditable="true" data-edit="desc"' : '') + '>' + esc(t.desc) + '</p>' +
@@ -1602,10 +1606,6 @@ function renderModal(){
         '<input id="chatInput" placeholder="Viết cho ' + (state.role === 'sep' ? 'Huy' : 'Sếp') + '…" autocomplete="off">' +
         '<button type="submit" class="btn btn-secondary">Gửi</button>' +
       '</form>' +
-    '</div>' +
-
-    '<div class="danger-row">' +
-      '<button class="btn-danger" id="btnDelete">Xoá nhiệm vụ này</button>' +
     '</div>';
 
   $('#modalScroll').scrollTop = keepScroll;
@@ -1657,10 +1657,10 @@ backdrop.addEventListener('click', function(e){
   if(el.id === 'btnDelete'){
     if(el.classList.contains('armed')){ removeTask(); return; }
     el.classList.add('armed');
-    el.textContent = 'Bấm lần nữa để xoá hẳn';
+    el.innerHTML = ICONS.rac + 'Xoá hẳn?';
     setTimeout(function(){
       var b = $('#btnDelete');
-      if(b){ b.classList.remove('armed'); b.textContent = 'Xoá nhiệm vụ này'; }
+      if(b){ b.classList.remove('armed'); b.innerHTML = ICONS.rac; }
     }, 4000);
     return;
   }
