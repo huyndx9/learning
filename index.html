@@ -236,6 +236,15 @@ body[data-role="sep"] .card{cursor:pointer}
 .card-prog .bar i{display:block; height:100%; background:var(--text); border-radius:2px; transition:width .4s var(--ease)}
 .card-prog .num{display:flex; justify-content:space-between; font-size:11px; color:var(--text-2); margin-bottom:6px}
 /* ghost khi kéo: scale 1.02 + xoay 1deg */
+/* cột Hoàn thành là kho lưu, chỉ cần tiêu đề — bấm vào là ra đủ chi tiết */
+.card.gon{padding:11px 14px}
+.card.gon h3{
+  font-size:13.5px; font-weight:500; line-height:1.4; color:var(--text-3);
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.card.gon:hover h3{color:var(--text)}
+.col[data-status="done"] .col-body{gap:8px}
+
 .card.dragging{opacity:.35}
 .drag-ghost{
   position:fixed; z-index:200; pointer-events:none; width:260px;
@@ -1304,6 +1313,13 @@ function matches(t){
 }
 
 function cardHTML(t){
+  /* xong rồi thì không cần bày tag, tiến độ hay hạn chót nữa */
+  if(t.status === 'done'){
+    return '<article class="card gon" data-id="' + t.id + '" tabindex="0" role="button">' +
+        '<h3>' + esc(t.title) + '</h3>' +
+      '</article>';
+  }
+
   var tags = t.tags.map(function(x){ return '<span class="tag">' + esc(x) + '</span>'; }).join('');
   tags += '<span class="tag ' + lopUuTien(t.priority) + '">' + esc(t.priority) + '</span>';
   var prog = '';
