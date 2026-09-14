@@ -9,9 +9,10 @@ Huy cập nhật tiến độ, hai bên trao đổi ngay trên từng nhiệm v�
 
 ```
 .
-├── index.html   — toàn bộ ứng dụng: HTML + CSS + JS trong một file
-├── 404.html     — đường dẫn sai thì quay về trang chính
-├── .nojekyll    — tắt Jekyll, để GitHub Pages phục vụ file nguyên trạng
+├── index.html    — toàn bộ ứng dụng: HTML + CSS + JS trong một file
+├── supabase.sql  — lược đồ cơ sở dữ liệu, dán vào Supabase để dùng chung
+├── 404.html      — đường dẫn sai thì quay về trang chính
+├── .nojekyll     — tắt Jekyll, để GitHub Pages phục vụ file nguyên trạng
 └── README.md
 ```
 
@@ -28,14 +29,41 @@ Mở bằng trình duyệt là chạy — kể cả khi mở trực tiếp từ 
 
 ## Dữ liệu
 
-Hiện lưu bằng `localStorage` của trình duyệt, nên mỗi máy giữ dữ liệu riêng
-và chưa đồng bộ giữa Sếp với Huy.
+Có hai chế độ, quyết định bởi khối `CAU_HINH` ở đầu phần `<script>` trong
+`index.html`.
 
-Muốn xoá hết để về dữ liệu mẫu ban đầu: mở Console của trình duyệt và chạy
+**Để trống — chỉ máy này.** Dữ liệu nằm trong `localStorage` của từng
+trình duyệt. Sếp và Huy mỗi người một bản riêng, không ai thấy của ai.
+Đây là mặc định, mở file lên là chạy, không cần chuẩn bị gì.
+
+**Điền vào — dùng chung.** Sếp và Huy cùng một bảng, ai sửa thì màn hình
+bên kia đổi theo trong vài giây, không cần tải lại trang. `localStorage`
+lúc này chỉ còn là bản đệm: mất mạng vẫn xem và làm việc được, nối lại thì
+đẩy tiếp.
+
+### Bật chế độ dùng chung
+
+1. Tạo một dự án ở [supabase.com](https://supabase.com) — gói miễn phí là đủ
+2. Mở **SQL Editor**, dán toàn bộ `supabase.sql` rồi bấm **Run**
+3. Vào **Project Settings › API**, chép hai giá trị:
+   - **Project URL** → `SUPABASE_URL`
+   - **Project API keys › anon public** → `SUPABASE_ANON_KEY`
+4. Điền vào khối `CAU_HINH` ở đầu `index.html`, commit và đẩy lên
+
+Lần đầu mở trang, nếu bảng còn trống thì dữ liệu đang có trên máy sẽ được
+đẩy lên làm điểm xuất phát.
+
+Pill ở đầu trang cho biết đang ở chế độ nào: **Dùng chung** (chấm xanh lá),
+**Chỉ máy này** (chấm xám), hoặc **Mất kết nối** (chấm cam).
+
+> Khoá `anon` là loại khoá công khai, nằm ngay trong mã nguồn trang — đó là
+> thiết kế của Supabase. Đừng bao giờ dán khoá `service_role` vào đây.
+> `supabase.sql` hiện mở quyền cho mọi người có link, vì repo này là board
+> nội bộ hai người. Muốn siết lại thì sửa bốn policy `mo_*` ở cuối file đó.
+
+### Xoá dữ liệu về mẫu ban đầu
+
+Chế độ chỉ-máy-này: mở Console của trình duyệt, chạy
 `localStorage.removeItem('learning.itsales.v1')` rồi tải lại trang.
 
-## Hướng phát triển
-
-Bước tiếp theo là thay `localStorage` bằng Supabase để hai người dùng chung
-một nguồn dữ liệu. Toàn bộ chỗ đọc ghi đã gom vào hai hàm `load()` và `save()`
-trong `index.html`, nên chỉ cần sửa ở đó.
+Chế độ dùng chung: xoá sạch ba bảng trong Supabase, rồi làm như trên.
