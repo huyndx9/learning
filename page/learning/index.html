@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Không gian học tập · IT Sales</title>
+<meta name="description" content="Workspace học IT Sales qua việc thật — Sếp giao việc, Huy cập nhật tiến độ.">
+<style>
+/* ============================================================
+   HỆ THỐNG THIẾT KẾ — PHONG CÁCH APPLE
+   ============================================================ */
+:root{
+  --bg:#fbfbfd;            /* nền Apple light gray */
+  --card:#ffffff;
+  --fill:#f5f5f7;          /* nền phụ / pill */
+  --fill-hover:#e8e8ed;
+  --text:#1d1d1f;          /* chữ chính */
+  --text-2:#86868b;        /* chữ phụ */
+  --text-3:#424245;        /* chữ nội dung */
+  --border:#d2d2d7;
+  --border-soft:#e8e8ed;
+  --accent:#0071e3;        /* xanh Apple */
+  --accent-hover:#0077ed;
+  --orange:#f56300;
+  --green:#34c759;
+  --shadow:0 4px 24px rgba(0,0,0,.06);
+  --shadow-hover:0 8px 32px rgba(0,0,0,.08);
+  --shadow-modal:0 24px 64px rgba(0,0,0,.18);
+  --ease:cubic-bezier(.28,.11,.32,1);   /* easing của Apple */
+  --r-lg:24px; --r-md:18px; --r-sm:12px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text',system-ui,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  font-size:14px; line-height:1.5; letter-spacing:-.01em;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+button,input,textarea{font-family:inherit; font-size:inherit; color:inherit}
+button{cursor:pointer; border:none; background:none; padding:0}
+::selection{background:rgba(0,113,227,.16)}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+@media(max-width:640px){.wrap{padding:0 20px}}
+
+/* nút pill chuẩn Apple: cao 36px, bo 20px, font 14px medium */
+.btn{
+  height:36px; padding:0 18px; border-radius:20px; font-size:14px; font-weight:500;
+  letter-spacing:-.01em; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  transition:background .4s var(--ease), transform .4s var(--ease), box-shadow .4s var(--ease);
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent); color:#fff; box-shadow:0 1px 4px rgba(0,113,227,.3)}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-secondary{background:var(--fill); color:var(--text)}
+.btn-secondary:hover{background:var(--fill-hover)}
+.btn-ghost{background:transparent; color:var(--text-2); height:32px; padding:0 12px; border-radius:16px}
+.btn-ghost:hover{background:var(--fill); color:var(--text)}
+
+/* ============================================================
+   HEADER — sticky, kính mờ
+   ============================================================ */
+.header{
+  position:sticky; top:0; z-index:50;
+  background:rgba(251,251,253,.8);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid rgba(0,0,0,.08);
+}
+.header-inner{height:56px; display:flex; align-items:center; gap:16px}
+.brand{display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; letter-spacing:-.02em; white-space:nowrap}
+.brand-mark{
+  width:26px; height:26px; border-radius:8px; background:var(--text); color:#fff;
+  display:grid; place-items:center; font-size:13px;
+}
+.brand-sub{color:var(--text-2); font-weight:400; font-size:13px}
+.header-spacer{flex:1}
+
+/* thanh tìm kiếm */
+.search{
+  position:relative; width:260px; max-width:38vw;
+}
+.search input{
+  width:100%; height:32px; border-radius:16px; border:1px solid transparent;
+  background:var(--fill); padding:0 32px 0 32px; font-size:13.5px; outline:none;
+  transition:background .4s var(--ease), border-color .4s var(--ease), box-shadow .4s var(--ease);
+}
+.search input::placeholder{color:var(--text-2)}
+.search input:focus{background:#fff; border-color:var(--border); box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+.search .ico{position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text-2); pointer-events:none; display:flex}
+.search .kbd{
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  font-size:11px; color:var(--text-2); background:#fff; border:1px solid var(--border-soft);
+  border-radius:5px; padding:1px 5px; pointer-events:none;
+}
+.search input:focus ~ .kbd{opacity:0}
+
+/* segmented control kiểu iOS */
+.segmented{
+  display:inline-flex; background:var(--fill); border-radius:9px; padding:2px; position:relative;
+}
+.segmented button{
+  position:relative; z-index:1; height:26px; padding:0 14px; border-radius:7px;
+  font-size:12.5px; font-weight:500; color:var(--text-2);
+  transition:color .4s var(--ease);
+}
+.segmented button[aria-pressed="true"]{color:var(--text)}
+.seg-thumb{
+  position:absolute; top:2px; left:2px; height:26px; border-radius:7px; background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04);
+  transition:transform .4s var(--ease), width .4s var(--ease);
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+.hero{padding:56px 0 40px}
+.hero h1{
+  margin:0; font-size:44px; line-height:1.08; letter-spacing:-.035em; font-weight:600;
+}
+.hero p{margin:12px 0 0; color:var(--text-2); font-size:17px; letter-spacing:-.01em}
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:36px}
+.stat{
+  background:var(--card); border:1px solid rgba(0,0,0,.04); border-radius:var(--r-md);
+  padding:24px; box-shadow:var(--shadow);
+  transition:box-shadow .4s var(--ease), transform .4s var(--ease);
+}
+.stat:hover{box-shadow:var(--shadow-hover); transform:translateY(-2px)}
+.stat .label{font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-2)}
+.stat .value{font-size:34px; font-weight:600; letter-spacing:-.03em; margin-top:10px; line-height:1}
+.stat .hint{font-size:12.5px; color:var(--text-2); margin-top:8px}
+@media(max-width:820px){
+  .hero{padding:36px 0 28px}
+  .hero h1{font-size:32px}
+  .hero p{font-size:15px}
+  .stats{grid-template-columns:1fr; gap:12px}
+  .stat{padding:18px}
+  .stat .value{font-size:28px}
+}
+
+/* ============================================================
+   BOARD + TIMELINE
+   ============================================================ */
+.layout{display:grid; grid-template-columns:1fr 280px; gap:28px; padding-bottom:64px; align-items:start}
+.board{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+@media(max-width:980px){
+  .layout{grid-template-columns:1fr}
+  .board{grid-template-columns:1fr}
+}
+.col{
+  background:rgba(255,255,255,.5); border:1px solid rgba(0,0,0,.05); border-radius:var(--r-md);
+  padding:16px; min-height:220px;
+  transition:background .4s var(--ease), border-color .4s var(--ease);
+}
+.col.drop-active{background:rgba(0,113,227,.05); border-color:rgba(0,113,227,.35)}
+.col-head{display:flex; align-items:center; justify-content:space-between; padding:2px 4px 14px}
+.col-title{font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-2)}
+.col-count{
+  font-size:11px; font-weight:600; color:var(--text-2); background:var(--fill);
+  border-radius:10px; min-width:20px; height:20px; padding:0 6px; display:grid; place-items:center;
+}
+.col-body{display:flex; flex-direction:column; gap:12px; min-height:60px}
+.col-empty{
+  border:1px dashed var(--border); border-radius:var(--r-sm); padding:20px 12px;
+  text-align:center; color:var(--text-2); font-size:12.5px;
+}
+
+/* thẻ công việc */
+.card{
+  background:var(--card); border:1px solid rgba(0,0,0,.05); border-radius:var(--r-sm);
+  padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.04); cursor:pointer;
+  transition:box-shadow .4s var(--ease), transform .4s var(--ease), opacity .4s var(--ease);
+  touch-action:manipulation; user-select:none; -webkit-user-select:none;
+}
+.card:hover{box-shadow:var(--shadow-hover); transform:translateY(-2px)}
+.card h3{margin:0; font-size:14.5px; font-weight:600; letter-spacing:-.015em; line-height:1.35}
+.card p{
+  margin:6px 0 0; font-size:12.5px; line-height:1.5; color:var(--text-2);
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.card-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
+.tag{
+  background:var(--fill); color:var(--text-3); font-size:11px; font-weight:500;
+  border-radius:20px; padding:4px 10px; white-space:nowrap;
+}
+.tag.hot{background:rgba(245,99,0,.1); color:var(--orange)}
+.card-foot{
+  margin-top:12px; padding-top:12px; border-top:1px solid var(--border-soft);
+  display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-2);
+  letter-spacing:.01em; white-space:nowrap; overflow:hidden;
+}
+.card-foot span:last-child{overflow:hidden; text-overflow:ellipsis}
+.dot-sep{width:2px; height:2px; border-radius:50%; background:var(--text-2); opacity:.6}
+.card-prog{margin-top:12px}
+.card-prog .bar{height:3px; border-radius:2px; background:var(--border-soft); overflow:hidden}
+.card-prog .bar i{display:block; height:100%; background:var(--text); border-radius:2px; transition:width .4s var(--ease)}
+.card-prog .num{display:flex; justify-content:space-between; font-size:11px; color:var(--text-2); margin-bottom:6px}
+/* ghost khi kéo: scale 1.02 + xoay 1deg */
+.card.dragging{opacity:.35}
+.drag-ghost{
+  position:fixed; z-index:200; pointer-events:none; width:260px;
+  transform:scale(1.02) rotate(1deg); box-shadow:0 12px 40px rgba(0,0,0,.16);
+  border-radius:var(--r-sm); background:var(--card); opacity:.98;
+}
+
+/* timeline hoạt động */
+.aside{position:sticky; top:80px}
+.panel{
+  background:var(--card); border:1px solid rgba(0,0,0,.05); border-radius:var(--r-md);
+  padding:20px; box-shadow:var(--shadow);
+}
+.panel-title{font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-2); margin-bottom:16px}
+.tl{display:flex; flex-direction:column; gap:2px; max-height:420px; overflow-y:auto}
+.tl-item{display:grid; grid-template-columns:18px 1fr; gap:10px; padding:8px 0}
+.tl-rail{display:flex; flex-direction:column; align-items:center}
+.tl-dot{width:7px; height:7px; border-radius:50%; background:var(--accent); margin-top:5px; flex:none}
+.tl-dot.grey{background:var(--border)}
+.tl-line{width:1px; flex:1; background:var(--border-soft); margin-top:4px}
+.tl-text{font-size:12.5px; line-height:1.45; color:var(--text-3)}
+.tl-time{font-size:11px; color:var(--text-2); margin-top:2px}
+
+/* ============================================================
+   MODAL CHI TIẾT — phần quan trọng nhất
+   ============================================================ */
+.backdrop{
+  position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.4);
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+  display:grid; place-items:center; padding:24px;
+  opacity:0; pointer-events:none; transition:opacity .4s var(--ease);
+}
+.backdrop.open{opacity:1; pointer-events:auto}
+.modal{
+  width:640px; max-width:100%; max-height:85vh; background:var(--card);
+  border-radius:var(--r-lg); box-shadow:var(--shadow-modal);
+  display:flex; flex-direction:column; overflow:hidden;
+  transform:scale(.96) translateY(8px); opacity:0;
+  transition:transform .4s var(--ease), opacity .4s var(--ease);
+}
+.backdrop.open .modal{transform:none; opacity:1}
+.modal-scroll{overflow-y:auto; -webkit-overflow-scrolling:touch; padding:28px 32px 24px}
+.modal-scroll::-webkit-scrollbar{width:8px}
+.modal-scroll::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px; border:2px solid #fff}
+
+/* hàng tag + nút đóng */
+.m-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px}
+.m-tags{display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-size:12.5px; color:var(--text-2)}
+.m-tags .tag-lead{background:var(--fill); color:var(--text); font-weight:500; border-radius:20px; padding:5px 12px; font-size:12.5px}
+.m-close{
+  width:32px; height:32px; border-radius:50%; background:var(--fill); color:var(--text-2);
+  display:grid; place-items:center; flex:none;
+  transition:background .4s var(--ease), color .4s var(--ease), transform .4s var(--ease);
+}
+.m-close:hover{background:var(--fill-hover); color:var(--text); transform:rotate(90deg)}
+
+.m-title{margin:18px 0 0; font-size:24px; font-weight:600; letter-spacing:-.028em; line-height:1.2}
+.m-desc{margin:8px 0 0; font-size:14px; color:var(--text-2); line-height:1.5}
+
+/* hàng meta 4 ô */
+.m-meta{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:24px}
+.meta-cell{border:1px solid var(--border-soft); border-radius:var(--r-sm); padding:12px; background:#fff}
+.meta-head{display:flex; align-items:center; gap:6px; color:var(--text-2)}
+.meta-label{font-size:10px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; white-space:nowrap}
+.meta-value{margin-top:8px; font-size:13px; font-weight:500; letter-spacing:-.01em; display:flex; align-items:center; gap:8px}
+.avatar{
+  width:24px; height:24px; border-radius:50%; background:var(--text); color:#fff;
+  font-size:9.5px; font-weight:600; display:grid; place-items:center; letter-spacing:.02em; flex:none;
+}
+.avatar.huy{background:var(--accent)}
+.meta-bar{height:3px; border-radius:2px; background:var(--border-soft); overflow:hidden; margin-top:8px}
+.meta-bar i{display:block; height:100%; background:var(--text); border-radius:2px; transition:width .4s var(--ease)}
+.meta-cell.progress .meta-head{justify-content:space-between}
+.meta-pct{font-size:13px; font-weight:600; color:var(--text); letter-spacing:-.01em}
+@media(max-width:620px){.m-meta{grid-template-columns:repeat(2,1fr)}}
+
+/* khối section chung */
+.m-section{margin-top:24px}
+.sec-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px}
+.sec-label{
+  display:flex; align-items:center; gap:7px;
+  font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-2);
+}
+.sec-note{font-size:11px; color:var(--text-2); background:var(--fill); border-radius:20px; padding:4px 10px; font-weight:500}
+.sec-body{background:var(--fill); border-radius:16px; padding:16px}
+.sec-body p{margin:0 0 12px; font-size:13.5px; line-height:1.62; color:var(--text-3)}
+.sec-body p:last-child{margin-bottom:0}
+
+/* 3 thẻ con trong NỘI DUNG HỌC TẬP */
+.sub-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px}
+.sub-card{background:#fff; border-radius:var(--r-sm); padding:12px}
+.sub-card .k{font-size:11px; color:var(--text-2); margin-bottom:6px}
+.sub-card .v{font-size:12.5px; font-weight:500; line-height:1.4; letter-spacing:-.01em}
+@media(max-width:620px){.sub-grid{grid-template-columns:1fr}}
+
+/* GHI CHÚ HỌC TẬP */
+.note-box{background:var(--fill); border-radius:16px; padding:12px}
+.note-box textarea{
+  width:100%; min-height:118px; resize:vertical; background:#fff;
+  border:1px solid var(--border-soft); border-radius:var(--r-sm); padding:12px;
+  font-size:14px; line-height:1.55; outline:none;
+  transition:border-color .4s var(--ease), box-shadow .4s var(--ease);
+}
+.note-box textarea:focus{border-color:var(--accent); box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+.note-bar{display:flex; align-items:center; justify-content:space-between; margin-top:10px; gap:8px}
+.note-tools{display:flex; gap:6px}
+.tool{
+  height:28px; min-width:28px; padding:0 10px; border-radius:8px; background:#fff;
+  border:1px solid var(--border-soft); font-size:12px; color:var(--text-3);
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:background .4s var(--ease), color .4s var(--ease);
+}
+.tool:hover{background:var(--fill-hover); color:var(--text)}
+.tool.b{font-weight:700}
+.tool.i{font-style:italic}
+.note-count{font-size:11.5px; color:var(--text-2); white-space:nowrap}
+.suggests{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.suggest{
+  background:#fff; border:1px solid var(--border-soft); border-radius:20px;
+  padding:7px 12px; font-size:12px; color:var(--text-3);
+  transition:background .4s var(--ease), border-color .4s var(--ease), transform .4s var(--ease);
+}
+.suggest:hover{background:var(--fill); border-color:var(--border); transform:translateY(-1px)}
+
+/* THẺ PHÂN LOẠI */
+.tag-box{background:var(--fill); border-radius:16px; padding:14px}
+.tag-row{display:flex; flex-wrap:wrap; gap:8px}
+.tag-chip{
+  display:inline-flex; align-items:center; gap:6px; background:#fff; color:var(--text-3);
+  border:1px solid var(--border-soft); border-radius:20px; padding:5px 6px 5px 12px;
+  font-size:12px; font-weight:500;
+}
+.tag-chip.hot{background:rgba(245,99,0,.08); border-color:rgba(245,99,0,.18); color:var(--orange)}
+.tag-chip button{
+  width:18px; height:18px; border-radius:50%; color:var(--text-2);
+  display:grid; place-items:center; flex:none;
+  transition:background .4s var(--ease), color .4s var(--ease);
+}
+.tag-chip button:hover{background:var(--fill-hover); color:var(--text)}
+.tag-form{display:flex; gap:8px; margin-top:12px}
+.tag-form input{
+  flex:1; min-width:0; height:34px; border-radius:17px; border:1px solid var(--border-soft);
+  background:#fff; padding:0 14px; font-size:13px; outline:none;
+  transition:border-color .4s var(--ease), box-shadow .4s var(--ease);
+}
+.tag-form input:focus{border-color:var(--accent); box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+.tag-form .btn{height:34px; background:#fff; border:1px solid var(--border-soft); padding:0 16px}
+.tag-form .btn:hover{background:var(--fill-hover)}
+.tag-empty{font-size:12.5px; color:var(--text-2)}
+
+/* TÀI LIỆU ĐÍNH KÈM */
+.file-list{display:flex; flex-direction:column; gap:8px}
+.file{
+  display:flex; align-items:center; gap:12px; background:#fff;
+  border:1px solid var(--border-soft); border-radius:var(--r-sm); padding:10px 12px;
+}
+.file-ico{
+  width:32px; height:38px; border-radius:6px; background:var(--fill); color:var(--text-2);
+  display:grid; place-items:center; font-size:8.5px; font-weight:700; letter-spacing:.04em; flex:none;
+  border:1px solid var(--border-soft);
+}
+.file-meta{flex:1; min-width:0}
+.file-name{font-size:13px; font-weight:500; letter-spacing:-.01em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.file-sub{font-size:11px; color:var(--text-2); margin-top:2px}
+.file-act{display:flex; gap:4px; flex:none}
+.add-file{
+  width:100%; margin-top:8px; height:38px; border-radius:var(--r-sm);
+  border:1px dashed var(--border); color:var(--text-2); font-size:12.5px; font-weight:500;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  transition:border-color .4s var(--ease), color .4s var(--ease), background .4s var(--ease);
+}
+.add-file:hover{border-color:var(--accent); color:var(--accent); background:rgba(0,113,227,.04)}
+
+/* TRAO ĐỔI */
+.chat{display:flex; flex-direction:column; gap:10px}
+.msg{display:grid; grid-template-columns:28px 1fr; gap:10px}
+.msg .bubble{background:var(--fill); border-radius:14px; padding:10px 12px}
+.msg.me .bubble{background:rgba(0,113,227,.08)}
+.msg .who{font-size:11.5px; font-weight:600; color:var(--text); margin-bottom:3px}
+.msg .who span{font-weight:400; color:var(--text-2); margin-left:6px; font-size:11px}
+.msg .txt{font-size:13px; line-height:1.5; color:var(--text-3)}
+.chat-form{display:flex; gap:8px; margin-top:12px}
+.chat-form input{
+  flex:1; height:36px; border-radius:18px; border:1px solid var(--border-soft);
+  background:#fff; padding:0 14px; font-size:13.5px; outline:none;
+  transition:border-color .4s var(--ease), box-shadow .4s var(--ease);
+}
+.chat-form input:focus{border-color:var(--accent); box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+
+/* footer sticky của modal */
+.m-foot{
+  border-top:1px solid var(--border-soft); background:rgba(255,255,255,.85);
+  -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%);
+  padding:14px 32px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex:none;
+}
+.m-foot .status{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-2); min-width:0}
+.m-foot .status .ball{width:7px; height:7px; border-radius:50%; background:var(--orange); flex:none}
+.m-foot .acts{display:flex; gap:8px; flex:none}
+@media(max-width:640px){
+  .backdrop{padding:0; align-items:flex-end}
+  .modal{max-height:94vh; border-radius:22px 22px 0 0; width:100%}
+  .modal-scroll{padding:22px 20px 20px}
+  .m-foot{padding:12px 20px calc(12px + env(safe-area-inset-bottom))}
+  .m-title{font-size:21px}
+  .m-foot .status{font-size:11.5px}
+}
+
+/* slider tiến độ */
+.prog-edit{display:flex; align-items:center; gap:12px; background:var(--fill); border-radius:16px; padding:14px 16px}
+.prog-edit input[type=range]{
+  -webkit-appearance:none; appearance:none; flex:1; height:4px; border-radius:2px;
+  background:var(--border-soft); outline:none;
+  background-image:linear-gradient(var(--text),var(--text));
+  background-repeat:no-repeat; background-size:var(--fill-pct,0%) 100%;
+}
+.prog-edit input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.2), 0 0 0 .5px rgba(0,0,0,.08); cursor:pointer;
+}
+.prog-edit input[type=range]::-moz-range-thumb{
+  width:20px; height:20px; border:none; border-radius:50%; background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.2); cursor:pointer;
+}
+.prog-edit .val{font-size:13px; font-weight:600; width:42px; text-align:right}
+
+/* toast */
+.toast{
+  position:fixed; left:50%; bottom:28px; transform:translate(-50%,16px); z-index:300;
+  background:rgba(29,29,31,.92); color:#fff; font-size:13px; font-weight:500;
+  padding:10px 18px; border-radius:20px; opacity:0; pointer-events:none;
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+  transition:opacity .4s var(--ease), transform .4s var(--ease);
+}
+.toast.show{opacity:1; transform:translate(-50%,0)}
+
+.page-foot{
+  border-top:1px solid rgba(0,0,0,.06); padding:20px 0 40px;
+  display:flex; justify-content:space-between; gap:12px; font-size:11.5px; color:var(--text-2);
+}
+@media(max-width:640px){.page-foot span:last-child{display:none}}
+/* header co lại gọn gàng trên màn hình hẹp */
+@media(max-width:760px){
+  .header-inner{gap:10px}
+  .brand-sub{display:none}
+  .search{width:auto; flex:1; min-width:0; max-width:none}
+  .search .kbd{display:none}
+  .header-spacer{display:none}
+  .segmented button{padding:0 10px}
+}
+@media(max-width:380px){
+  .brand span:not(.brand-mark){display:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms !important; animation-duration:.01ms !important}}
+</style>
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header class="header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark">📚</span>
+      <span>Learning</span>
+      <span class="brand-sub">· IT Sales Workspace</span>
+    </div>
+    <div class="header-spacer"></div>
+
+    <div class="search">
+      <span class="ico">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <input id="search" type="search" placeholder="Tìm nhiệm vụ…" autocomplete="off">
+      <span class="kbd">⌘K</span>
+    </div>
+
+    <!-- chuyển vai trò kiểu segmented control của iOS -->
+    <div class="segmented" id="roleSwitch">
+      <span class="seg-thumb" id="segThumb"></span>
+      <button data-role="sep" aria-pressed="true">SẾP</button>
+      <button data-role="huy" aria-pressed="false">HUY</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <section class="hero">
+    <h1>Không gian học tập.</h1>
+    <p>IT Sales · Học cùng sếp, qua việc thật.</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Đã hoàn thành</div>
+        <div class="value" id="statDone">0</div>
+        <div class="hint" id="hintDone">Nền tảng đã vững</div>
+      </div>
+      <div class="stat">
+        <div class="label">Đang học</div>
+        <div class="value" id="statDoing">0</div>
+        <div class="hint" id="hintDoing">Tiến độ trung bình 0%</div>
+      </div>
+      <div class="stat">
+        <div class="label">Cần học</div>
+        <div class="value" id="statTodo">0</div>
+        <div class="hint" id="hintTodo">Sếp đã giao sẵn</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BOARD + TIMELINE ===================== -->
+  <div class="layout">
+    <div class="board" id="board">
+      <section class="col" data-status="todo">
+        <div class="col-head">
+          <span class="col-title">01 — Cần học</span>
+          <span class="col-count" data-count="todo">0</span>
+        </div>
+        <div class="col-body" data-body="todo"></div>
+      </section>
+      <section class="col" data-status="doing">
+        <div class="col-head">
+          <span class="col-title">02 — Đang học</span>
+          <span class="col-count" data-count="doing">0</span>
+        </div>
+        <div class="col-body" data-body="doing"></div>
+      </section>
+      <section class="col" data-status="done">
+        <div class="col-head">
+          <span class="col-title">03 — Hoàn thành</span>
+          <span class="col-count" data-count="done">0</span>
+        </div>
+        <div class="col-body" data-body="done"></div>
+      </section>
+    </div>
+
+    <aside class="aside">
+      <div class="panel">
+        <div class="panel-title">Hoạt động</div>
+        <div class="tl" id="timeline"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="page-foot">
+    <span>Được thiết kế như một ứng dụng macOS — tối giản, tinh tế, tập trung.</span>
+    <span>⌘K để tìm · Esc để đóng · Kéo thả để đổi trạng thái</span>
+  </div>
+</main>
+
+<!-- ===================== MODAL CHI TIẾT ===================== -->
+<div class="backdrop" id="backdrop" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal" id="modal">
+    <div class="modal-scroll" id="modalScroll"></div>
+    <div class="m-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<input type="file" id="filePicker" multiple hidden>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   1. DỮ LIỆU MẪU — 100% tiếng Việt
+   ============================================================ */
+var SEED = [
+  /* ---------- CẦN HỌC ---------- */
+  {
+    id:'t1', status:'todo', title:'Hiểu quy trình IT Sales tại Hàn Quốc',
+    desc:'Từ tìm khách, tiếp cận, báo giá đến ký hợp đồng và bàn giao nhân sự.',
+    tags:['IT Sales','Nền tảng'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    due:'22/09/2026', estimate:'3h', progress:0,
+    content:[
+      'Nắm 5 bước chuẩn của một thương vụ IT tại Hàn: (1) Tìm nguồn khách qua job posting và mạng lưới. (2) Gọi/mail tiếp cận người quyết định. (3) Gặp mặt nắm yêu cầu kỹ thuật. (4) Báo giá theo man-month. (5) Ký hợp đồng và bàn giao nhân sự.',
+      'Chú ý văn hoá làm việc Hàn Quốc: quyết định theo cấp bậc, thích gặp trực tiếp, coi trọng chữ tín hơn hợp đồng giấy.'
+    ],
+    goal:'Kể lại đủ 5 bước không cần nhìn ghi chú',
+    criteria:'Vẽ được sơ đồ quy trình trên giấy',
+    customer:'Áp dụng cho mọi khách',
+    note:'', files:[{name:'IT_Sales_Process_KR.pdf', size:'1.2 MB', type:'PDF'}],
+    suggests:['💡 Insight: Khách quyết theo cấp bậc','❓ Hỏi Sếp về cách chào giá lần đầu'],
+    comments:[]
+  },
+  {
+    id:'t2', status:'todo', title:'Phân biệt các mô hình: Phái cử / Trọn gói / SI / SM',
+    desc:'Hiểu bản chất từng mô hình để tư vấn đúng thứ khách cần.',
+    tags:['IT Sales','Mô hình'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    due:'24/09/2026', estimate:'2h', progress:0,
+    content:[
+      'Phái cử (파견): đưa kỹ sư sang làm tại chỗ khách, tính tiền theo man-month, rủi ro thấp, biên lợi nhuận mỏng.',
+      'Trọn gói (도급): nhận nguyên dự án, cam kết kết quả, lời nhiều nhưng gánh rủi ro tiến độ và chất lượng. SI là xây hệ thống mới, SM là vận hành bảo trì hệ thống đang chạy.'
+    ],
+    goal:'Nói được ưu/nhược mỗi mô hình trong 2 phút',
+    criteria:'Chọn đúng mô hình cho 3 tình huống giả định',
+    customer:'Dùng khi tư vấn khách mới',
+    note:'', files:[],
+    suggests:['💡 Insight: Trọn gói lời nhưng rủi ro','❓ Hỏi Sếp tỷ lệ lãi từng mô hình'],
+    comments:[]
+  },
+  {
+    id:'t3', status:'todo', title:'Cách đọc tin tuyển dụng để tìm tín hiệu mua hàng',
+    desc:'Tin tuyển dụng là tín hiệu công ty đang thiếu người và sắp có dự án.',
+    tags:['IT Sales','Tìm khách'], priority:'Bình thường', assignee:'Sếp giao',
+    due:'26/09/2026', estimate:'2h', progress:0,
+    content:[
+      'Một tin tuyển dụng nói rất nhiều: công nghệ đang dùng, quy mô đội, dự án sắp khởi động, và mức ngân sách họ chấp nhận trả.',
+      'Tín hiệu mạnh: tuyển gấp nhiều vị trí cùng stack, tuyển liên tục 3 tháng, hoặc tuyển vai trò mà nội bộ khó có sẵn (ví dụ kỹ sư hạ tầng cho dự án chuyển đổi số).'
+    ],
+    goal:'Lọc 10 tin/ngày ra 2 khách tiềm năng',
+    criteria:'Nộp được danh sách 5 công ty có tín hiệu',
+    customer:'Nguồn khách mới hàng tuần',
+    note:'', files:[],
+    suggests:['💡 Insight: Tuyển gấp = dự án đã chốt','❓ Hỏi Sếp nên theo dõi trang nào'],
+    comments:[]
+  },
+  {
+    id:'t4', status:'todo', title:'30 thuật ngữ IT bắt buộc phải biết',
+    desc:'Nói đúng từ chuyên môn thì khách mới tin mình hiểu việc.',
+    tags:['IT Sales','Thuật ngữ'], priority:'Bình thường', assignee:'Sếp giao',
+    due:'28/09/2026', estimate:'4h', progress:0,
+    content:[
+      'Nhóm hạ tầng: on-premise, cloud, AWS, container, CI/CD, load balancer. Nhóm phát triển: backend, frontend, API, framework, legacy, refactor.',
+      'Nhóm dự án: scope, man-month, milestone, SLA, UAT, go-live. Mỗi thuật ngữ cần một câu giải thích cho người không rành kỹ thuật.'
+    ],
+    goal:'Giải thích mỗi từ trong 1 câu dễ hiểu',
+    criteria:'Sếp hỏi ngẫu nhiên 10 từ, trả lời đúng 9',
+    customer:'Dùng trong mọi cuộc gặp',
+    note:'', files:[{name:'IT_Glossary_30.xlsx', size:'86 KB', type:'XLS'}],
+    suggests:['💡 Insight: Nói đơn giản mới sang','❓ Hỏi Sếp từ nào khách hay hỏi nhất'],
+    comments:[]
+  },
+  /* --- thẻ tham chiếu đúng như ảnh thiết kế modal --- */
+  {
+    id:'t13', status:'todo', title:'Nghiên cứu sản phẩm ERP mới',
+    desc:'Module Tài chính – hiểu flow kế toán, báo cáo, phân quyền.',
+    tags:['IT Sales','Sản phẩm'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    due:'20/09/2026', estimate:'2h', progress:60,
+    content:[
+      'Tập trung vào 3 luồng chính: (1) Quy trình ghi nhận bút toán kép từ Mua hàng -> Kho -> Kế toán. (2) Cơ chế phân quyền theo vai trò (Admin / Kế toán trưởng / Kế toán viên). (3) Báo cáo quản trị P&L và Cashflow theo thời gian thực.',
+      'Cần chuẩn bị 2 case study demo cho khách hàng sản xuất: một công ty có 50 users và một công ty có 200 users. Làm rõ điểm khác biệt so với MISA và FAST.'
+    ],
+    goal:'Demo được flow tài chính không cần slide',
+    criteria:'Sếp gật đầu sau 15p demo thử',
+    customer:'Minh Long · CTO quyết',
+    note:'Flow kế toán: PO -> GR -> Invoice -> Payment. Báo cáo cần drill-down được đến chứng từ gốc. Phân quyền chi tiết đến nút bấm.',
+    files:[
+      {name:'ERP_Finance_Flow_v2.4.pdf', size:'2.4 MB', type:'PDF'},
+      {name:'Phan_quyen_matrix.xlsx', size:'340 KB', type:'XLS'},
+      {name:'Demo_script_MinhLong.docx', size:'128 KB', type:'DOC'}
+    ],
+    suggests:['💡 Insight: Khách sợ mất dữ liệu','❓ Hỏi Sếp về audit log'],
+    comments:[]
+  },
+  /* ---------- ĐANG HỌC ---------- */
+  {
+    id:'t5', status:'doing', title:'Phân tích công ty A - Case study thực tế',
+    desc:'Dựng hồ sơ khách: stack công nghệ, người quyết, nhu cầu thật sự.',
+    tags:['IT Sales','Case study'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    due:'18/09/2026', estimate:'5h', progress:60,
+    content:[
+      'Dựng hồ sơ công ty A gồm 4 phần: quy mô và ngành nghề, stack công nghệ đang dùng, sơ đồ người ra quyết định, và nhu cầu nhân sự 6 tháng tới.',
+      'Nguồn thông tin: website tuyển dụng, báo cáo tài chính công khai, bài phỏng vấn lãnh đạo, và mạng lưới quen biết của Sếp.'
+    ],
+    goal:'Ra được 1 hồ sơ khách dùng được ngay',
+    criteria:'Chỉ đúng người quyết và ngân sách ước tính',
+    customer:'Công ty A · CTO quyết trực tiếp',
+    note:'Bên đó dùng Spring Boot + AWS, đội backend khoảng 12 người. Đang tuyển 3 vị trí DevOps trong 2 tháng.',
+    files:[{name:'CongTyA_Profile.pdf', size:'980 KB', type:'PDF'}],
+    suggests:['💡 Insight: CTO quyết, không qua HR','❓ Hỏi Sếp cách xin lịch gặp CTO'],
+    comments:[
+      {who:'sep', text:'Công ty này CTO quyết trực tiếp.', at:'2026-09-12T09:20:00'},
+      {who:'huy', text:'Dạ, bên đó dùng Spring và AWS.', at:'2026-09-12T10:05:00'}
+    ]
+  },
+  {
+    id:'t6', status:'doing', title:'Viết email đề xuất đầu tiên',
+    desc:'Email 150 chữ, nêu đúng vấn đề khách đang gặp và cách mình giúp.',
+    tags:['IT Sales','Viết'], priority:'Bình thường', assignee:'Sếp giao',
+    due:'19/09/2026', estimate:'2h', progress:30,
+    content:[
+      'Cấu trúc email: 1 câu lý do liên hệ (dựa trên tín hiệu thật), 2 câu nêu vấn đề khách đang gặp, 2 câu nói mình giải quyết được gì, 1 câu chốt xin 15 phút gặp.',
+      'Tuyệt đối không kể lể về công ty mình ở đoạn đầu. Khách chỉ quan tâm vấn đề của họ.'
+    ],
+    goal:'Email dưới 150 chữ mà khách vẫn trả lời',
+    criteria:'Sếp duyệt bản nháp không sửa quá 3 chỗ',
+    customer:'Gửi thử cho công ty A',
+    note:'',
+    files:[{name:'Email_template_v1.docx', size:'42 KB', type:'DOC'}],
+    suggests:['💡 Insight: Ngắn mới được đọc','❓ Hỏi Sếp nên gửi giờ nào'],
+    comments:[{who:'sep', text:'Bản nháp dài quá, cắt còn một nửa nhé.', at:'2026-09-13T14:10:00'}]
+  },
+  {
+    id:'t7', status:'doing', title:'Diễn tập meeting với khách hàng',
+    desc:'Tập mở đầu, hỏi đúng câu, và xử lý khi khách nói "để xem đã".',
+    tags:['IT Sales','Kỹ năng'], priority:'Bình thường', assignee:'Sếp giao',
+    due:'25/09/2026', estimate:'3h', progress:10,
+    content:[
+      'Kịch bản 30 phút: 3 phút chào hỏi, 10 phút hỏi nhu cầu, 10 phút trình bày giải pháp, 5 phút xử lý phản đối, 2 phút chốt bước tiếp theo.',
+      'Chuẩn bị sẵn câu trả lời cho 5 phản đối hay gặp: giá cao, đã có đối tác, chưa có ngân sách, sợ chất lượng, cần thời gian suy nghĩ.'
+    ],
+    goal:'Tự tin dẫn dắt 30 phút không bị khớp',
+    criteria:'Diễn tập với Sếp đạt 2 lần liên tiếp',
+    customer:'Chuẩn bị cho buổi gặp công ty A',
+    note:'',
+    files:[],
+    suggests:['💡 Insight: Hỏi nhiều hơn nói','❓ Hỏi Sếp cách xử lý "để xem đã"'],
+    comments:[]
+  },
+  {
+    id:'t8', status:'doing', title:'Hiểu cách báo giá - Tính man-month',
+    desc:'Từ lương kỹ sư đến đơn giá bán: cộng chi phí, rủi ro và lợi nhuận.',
+    tags:['IT Sales','Báo giá'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    due:'21/09/2026', estimate:'4h', progress:45,
+    content:[
+      'Công thức gốc: đơn giá bán = chi phí nhân sự + chi phí quản lý + dự phòng rủi ro + lợi nhuận mục tiêu. Man-month là một người làm một tháng.',
+      'Lưu ý: dự án trọn gói phải cộng thêm dự phòng 15-20% cho phần phát sinh, còn phái cử thì tính theo số tháng cam kết.'
+    ],
+    goal:'Tự báo giá được dự án 3 người / 6 tháng',
+    criteria:'Con số lệch dưới 10% so với Sếp tính',
+    customer:'Dùng cho mọi đề xuất',
+    note:'',
+    files:[{name:'Bang_tinh_man_month.xlsx', size:'156 KB', type:'XLS'}],
+    suggests:['💡 Insight: Quên dự phòng là lỗ','❓ Hỏi Sếp mức lợi nhuận mục tiêu'],
+    comments:[]
+  },
+  /* ---------- HOÀN THÀNH ---------- */
+  {
+    id:'t9', status:'done', title:'Hoàn thành Company Scanner v1',
+    desc:'Công cụ tự quét tin tuyển dụng và chấm điểm khách tiềm năng.',
+    tags:['Sản phẩm','Đã xong'], priority:'Bình thường', assignee:'Sếp giao',
+    due:'30/08/2026', estimate:'20h', progress:100,
+    content:['Công cụ tự động thu thập tin tuyển dụng, lọc theo stack công nghệ và chấm điểm mức độ tiềm năng của từng công ty.'],
+    goal:'Tự động hoá bước tìm khách',
+    criteria:'Chạy ổn định 1 tuần liền',
+    customer:'Dùng nội bộ',
+    note:'Đã chạy ổn định, mỗi ngày ra khoảng 15 công ty tiềm năng.',
+    files:[], suggests:['💡 Insight: Tự động hoá tiết kiệm 2h/ngày','❓ Hỏi Sếp có nên thêm cảnh báo mail'],
+    comments:[]
+  },
+  {
+    id:'t10', status:'done', title:'App quản lý tồn kho 택이네',
+    desc:'Ứng dụng thật, khách thật, vận hành hằng ngày.',
+    tags:['Sản phẩm','Đã xong'], priority:'Bình thường', assignee:'Sếp giao',
+    due:'15/07/2026', estimate:'40h', progress:100,
+    content:['Ứng dụng quản lý tồn kho cho cửa hàng 택이네: nhập hàng, xuất hàng, cảnh báo hết hàng và báo cáo doanh thu theo ngày.'],
+    goal:'Sản phẩm chạy thật với khách thật',
+    criteria:'Chủ cửa hàng dùng hằng ngày',
+    customer:'택이네',
+    note:'Khách dùng đều, phản hồi tốt phần cảnh báo hết hàng.',
+    files:[], suggests:['💡 Insight: Khách cần đơn giản hơn đẹp','❓ Hỏi Sếp có nhân rộng được không'],
+    comments:[]
+  },
+  {
+    id:'t11', status:'done', title:'Đạt TOPIK 6',
+    desc:'Nền tảng ngôn ngữ để làm việc trực tiếp với khách Hàn.',
+    tags:['Ngôn ngữ','Đã xong'], priority:'Ưu tiên cao', assignee:'Sếp giao',
+    due:'20/05/2026', estimate:'—', progress:100,
+    content:['Chứng chỉ tiếng Hàn cấp cao nhất, đủ để họp và đàm phán trực tiếp với khách hàng Hàn Quốc.'],
+    goal:'Giao tiếp công việc không cần phiên dịch',
+    criteria:'Đạt cấp 6',
+    customer:'Nền tảng cho mọi khách Hàn',
+    note:'Cần luyện thêm từ vựng chuyên ngành IT và kinh doanh.',
+    files:[], suggests:['💡 Insight: Từ chuyên ngành vẫn còn yếu','❓ Hỏi Sếp cách học từ ngành IT'],
+    comments:[]
+  },
+  {
+    id:'t12', status:'done', title:'Vận hành Bunjang/Joongna',
+    desc:'Kinh nghiệm bán hàng thật: định giá, chốt đơn, chăm khách.',
+    tags:['Kinh doanh','Đã xong'], priority:'Bình thường', assignee:'Sếp giao',
+    due:'10/04/2026', estimate:'—', progress:100,
+    content:['Bán hàng trên hai sàn thương mại Hàn Quốc: tự định giá, viết mô tả, thương lượng và chăm sóc khách sau bán.'],
+    goal:'Hiểu tâm lý người mua Hàn Quốc',
+    criteria:'Duy trì đánh giá tốt',
+    customer:'Khách lẻ Hàn Quốc',
+    note:'Người mua Hàn rất coi trọng phản hồi nhanh và mô tả trung thực.',
+    files:[], suggests:['💡 Insight: Trả lời nhanh là chốt được','❓ Hỏi Sếp áp dụng gì cho B2B'],
+    comments:[]
+  }
+];
+
+var SEED_ACTIVITY = [
+  {text:'Sếp giao nhiệm vụ <b>Nghiên cứu sản phẩm ERP mới</b>', at:'2026-09-13T08:30:00'},
+  {text:'Huy cập nhật tiến độ <b>Phân tích công ty A</b> lên 60%', at:'2026-09-13T15:40:00'},
+  {text:'Sếp để lại nhận xét ở <b>Viết email đề xuất đầu tiên</b>', at:'2026-09-13T14:10:00'},
+  {text:'Huy hoàn thành <b>Company Scanner v1</b>', at:'2026-08-30T17:00:00'}
+];
+
+/* ============================================================
+   2. LƯU TRỮ — localStorage (sau này thay bằng Supabase)
+   ============================================================ */
+var KEY = 'learning.itsales.v1';
+var state = { tasks:[], activity:[], role:'sep' };
+
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){
+      var p = JSON.parse(raw);
+      state.tasks = Array.isArray(p.tasks) && p.tasks.length ? p.tasks : clone(SEED);
+      state.activity = Array.isArray(p.activity) ? p.activity : clone(SEED_ACTIVITY);
+      state.role = p.role === 'huy' ? 'huy' : 'sep';
+      return;
+    }
+  }catch(e){ /* dữ liệu hỏng thì dựng lại từ đầu */ }
+  state.tasks = clone(SEED);
+  state.activity = clone(SEED_ACTIVITY);
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ toast('Không lưu được — bộ nhớ trình duyệt đã đầy'); }
+}
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+/* ============================================================
+   3. TIỆN ÍCH
+   ============================================================ */
+var $ = function(s, r){ return (r||document).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function byId(id){
+  for(var i=0;i<state.tasks.length;i++){ if(state.tasks[i].id === id) return state.tasks[i]; }
+  return null;
+}
+var STATUS_LABEL = { todo:'Cần làm', doing:'Đang làm', done:'Hoàn thành' };
+
+/* hạn chót "20/09/2026" -> "20/09" cho footer thẻ */
+function shortDue(d){
+  var m = /^(\d{2})\/(\d{2})/.exec(d || '');
+  return m ? m[1] + '/' + m[2] : (d || '—');
+}
+/* thời gian tương đối kiểu Apple: vừa xong / 5 phút trước / Hôm nay 14:10 */
+function relTime(iso){
+  var t = new Date(iso).getTime();
+  if(isNaN(t)) return '';
+  var diff = Date.now() - t;
+  if(diff < 0) diff = 0;
+  var mins = Math.floor(diff/60000);
+  if(mins < 1) return 'Vừa xong';
+  if(mins < 60) return mins + ' phút trước';
+  var d = new Date(t), now = new Date();
+  var hhmm = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+  if(d.toDateString() === now.toDateString()) return 'Hôm nay ' + hhmm;
+  var y = new Date(now.getTime() - 86400000);
+  if(d.toDateString() === y.toDateString()) return 'Hôm qua ' + hhmm;
+  return ('0'+d.getDate()).slice(-2) + '/' + ('0'+(d.getMonth()+1)).slice(-2) + ' ' + hhmm;
+}
+var toastTimer;
+function toast(msg){
+  var el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+function logActivity(html){
+  state.activity.unshift({ text:html, at:new Date().toISOString() });
+  if(state.activity.length > 30) state.activity.length = 30;
+}
+function roleName(r){ return r === 'huy' ? 'Huy' : 'Sếp'; }
+function roleInitials(r){ return r === 'huy' ? 'HU' : 'AT'; }
+
+/* ============================================================
+   4. RENDER BOARD
+   ============================================================ */
+var keyword = '';
+
+function matches(t){
+  if(!keyword) return true;
+  var hay = (t.title + ' ' + t.desc + ' ' + t.tags.join(' ') + ' ' + (t.note||'')).toLowerCase();
+  return hay.indexOf(keyword) !== -1;
+}
+
+function cardHTML(t){
+  var tags = t.tags.map(function(x){ return '<span class="tag">' + esc(x) + '</span>'; }).join('');
+  if(t.priority === 'Ưu tiên cao') tags += '<span class="tag hot">Ưu tiên cao</span>';
+  var prog = '';
+  if(t.status === 'doing' || (t.progress > 0 && t.progress < 100)){
+    prog = '<div class="card-prog">' +
+             '<div class="num"><span>Tiến độ</span><span>' + t.progress + '%</span></div>' +
+             '<div class="bar"><i style="width:' + t.progress + '%"></i></div>' +
+           '</div>';
+  }
+  var fileTxt = t.files.length ? t.files.length + ' tài liệu' : 'chưa có tài liệu';
+  return '<article class="card" data-id="' + t.id + '" tabindex="0" role="button">' +
+      '<h3>' + esc(t.title) + '</h3>' +
+      '<p>' + esc(t.desc) + '</p>' +
+      '<div class="card-tags">' + tags + '</div>' +
+      prog +
+      '<div class="card-foot">' +
+        '<span>SẾP</span><span class="dot-sep"></span>' +
+        '<span>' + esc(shortDue(t.due)) + '</span><span class="dot-sep"></span>' +
+        '<span>' + fileTxt + '</span>' +
+      '</div>' +
+    '</article>';
+}
+
+function render(){
+  ['todo','doing','done'].forEach(function(st){
+    var list = state.tasks.filter(function(t){ return t.status === st; });
+    var shown = list.filter(matches);
+    var body = $('[data-body="' + st + '"]');
+    body.innerHTML = shown.length
+      ? shown.map(cardHTML).join('')
+      : '<div class="col-empty">' + (keyword ? 'Không có kết quả phù hợp' : 'Kéo thẻ vào đây') + '</div>';
+    $('[data-count="' + st + '"]').textContent = list.length;
+  });
+  renderStats();
+  renderTimeline();
+}
+
+function renderStats(){
+  var done = state.tasks.filter(function(t){ return t.status === 'done'; });
+  var doing = state.tasks.filter(function(t){ return t.status === 'doing'; });
+  var todo = state.tasks.filter(function(t){ return t.status === 'todo'; });
+  $('#statDone').textContent = done.length;
+  $('#statDoing').textContent = doing.length;
+  $('#statTodo').textContent = todo.length;
+  var avg = doing.length
+    ? Math.round(doing.reduce(function(s,t){ return s + t.progress; }, 0) / doing.length)
+    : 0;
+  $('#hintDoing').textContent = 'Tiến độ trung bình ' + avg + '%';
+  $('#hintDone').textContent = done.length ? 'Nền tảng đã vững' : 'Bắt đầu từ việc nhỏ';
+  $('#hintTodo').textContent = todo.length ? 'Sếp đã giao sẵn' : 'Đã học hết phần được giao';
+}
+
+function renderTimeline(){
+  var items = state.activity.slice(0, 12);
+  $('#timeline').innerHTML = items.length ? items.map(function(a, i){
+    return '<div class="tl-item">' +
+        '<div class="tl-rail">' +
+          '<span class="tl-dot' + (i === 0 ? '' : ' grey') + '"></span>' +
+          (i < items.length - 1 ? '<span class="tl-line"></span>' : '') +
+        '</div>' +
+        '<div><div class="tl-text">' + a.text + '</div>' +
+        '<div class="tl-time">' + relTime(a.at) + '</div></div>' +
+      '</div>';
+  }).join('') : '<div class="tl-text" style="color:var(--text-2)">Chưa có hoạt động nào.</div>';
+}
+
+/* ============================================================
+   5. MODAL CHI TIẾT
+   ============================================================ */
+var openId = null;
+var noteTimer = null;
+var MAX_TAGS = 5;   /* giữ thẻ gọn để không vỡ bố cục thẻ trên board */
+
+/* thêm một thẻ vào nhiệm vụ đang mở; trả về true nếu thêm được */
+function addTag(raw){
+  var t = byId(openId);
+  if(!t) return false;
+  var name = String(raw || '').trim().replace(/\s+/g, ' ');
+  if(!name) return false;
+  if(t.tags.length >= MAX_TAGS){ toast('Mỗi nhiệm vụ tối đa ' + MAX_TAGS + ' thẻ'); return false; }
+  var trung = t.tags.some(function(x){ return x.toLowerCase() === name.toLowerCase(); });
+  if(trung){ toast('Thẻ "' + name + '" đã có rồi'); return false; }
+  t.tags.push(name);
+  logActivity(roleName(state.role) + ' gắn thẻ <b>' + esc(name) + '</b> cho <i>' + esc(t.title) + '</i>');
+  save(); render(); renderModal();
+  return true;
+}
+
+var ICONS = {
+  book:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/><path d="M2.5 6h11"/></svg>',
+  pen:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5l2 2-7.5 7.5-2.6.6.6-2.6z"/></svg>',
+  clip:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M10.5 5.5L6 10a1.8 1.8 0 002.5 2.5l4.5-4.5a3.3 3.3 0 00-4.7-4.7L3.5 8.1"/></svg>',
+  chat:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 4.5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H7l-3.5 2.5V10.5a2 2 0 01-1-1.7z"/></svg>',
+  calendar:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" stroke-linecap="round"/></svg>',
+  clock:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.2l2 1.3" stroke-linecap="round"/></svg>',
+  person:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="6" r="2.5"/><path d="M3.5 13c.6-2.2 2.3-3.3 4.5-3.3s3.9 1.1 4.5 3.3" stroke-linecap="round"/></svg>',
+  gauge:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 11a5.5 5.5 0 1110 0"/><path d="M8 11l2.5-3"/></svg>',
+  x:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>',
+  tag:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 7.4V3a.5.5 0 01.5-.5h4.4a1 1 0 01.7.3l5.1 5.1a1 1 0 010 1.4l-4.4 4.4a1 1 0 01-1.4 0L2.8 8.6a1 1 0 01-.3-.7z"/><circle cx="5.6" cy="5.6" r=".9" fill="currentColor" stroke="none"/></svg>',
+  xs:'<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>'
+};
+
+function openModal(id){
+  var t = byId(id);
+  if(!t) return;
+  openId = id;
+  $('#modalScroll').scrollTop = 0;
+  renderModal();
+  $('#backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  flushNote();
+  openId = null;
+  $('#backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderModal(){
+  var t = byId(openId);
+  if(!t) return;
+  var keepScroll = $('#modalScroll').scrollTop;   /* vẽ lại mà không nhảy về đầu */
+  var editable = state.role === 'sep';   /* chỉ Sếp mới sửa được đề bài */
+
+  /* ---- hàng tag: pill đầu tiên tô nền, các tag sau dạng chữ + dấu chấm ---- */
+  var rest = [STATUS_LABEL[t.status], t.priority];
+  var tagRow = '<span class="tag-lead">' + esc(t.tags[0] || 'IT Sales') + '</span>' +
+    rest.map(function(x){
+      return '<span class="dot-sep"></span><span>' + esc(x) + '</span>';
+    }).join('');
+
+  /* ---- 4 ô meta ---- */
+  var meta =
+    '<div class="meta-cell">' +
+      '<div class="meta-head">' + ICONS.person + '<span class="meta-label">Người giao</span></div>' +
+      '<div class="meta-value"><span class="avatar">AT</span>' + esc(t.assignee) + '</div>' +
+    '</div>' +
+    '<div class="meta-cell">' +
+      '<div class="meta-head">' + ICONS.calendar + '<span class="meta-label">Hạn chót</span></div>' +
+      '<div class="meta-value">' + esc(t.due) + '</div>' +
+    '</div>' +
+    '<div class="meta-cell">' +
+      '<div class="meta-head">' + ICONS.clock + '<span class="meta-label">Ước tính</span></div>' +
+      '<div class="meta-value">' + esc(t.estimate) + '</div>' +
+    '</div>' +
+    '<div class="meta-cell progress">' +
+      '<div class="meta-head"><span class="meta-label">Tiến độ</span><span class="meta-pct" id="metaPct">' + t.progress + '%</span></div>' +
+      '<div class="meta-bar"><i id="metaBar" style="width:' + t.progress + '%"></i></div>' +
+    '</div>';
+
+  /* ---- NỘI DUNG HỌC TẬP ---- */
+  var content = t.content.map(function(p){
+    return '<p' + (editable ? ' contenteditable="true" data-edit="content"' : '') + '>' + esc(p) + '</p>';
+  }).join('');
+  var subs =
+    '<div class="sub-grid">' +
+      '<div class="sub-card"><div class="k">Mục tiêu</div><div class="v"' + (editable ? ' contenteditable="true" data-edit="goal"' : '') + '>' + esc(t.goal) + '</div></div>' +
+      '<div class="sub-card"><div class="k">Tiêu chí đạt</div><div class="v"' + (editable ? ' contenteditable="true" data-edit="criteria"' : '') + '>' + esc(t.criteria) + '</div></div>' +
+      '<div class="sub-card"><div class="k">Khách hàng liên quan</div><div class="v"' + (editable ? ' contenteditable="true" data-edit="customer"' : '') + '>' + esc(t.customer) + '</div></div>' +
+    '</div>';
+
+  /* ---- THẺ PHÂN LOẠI: thêm / bớt trực tiếp ---- */
+  var chips = t.tags.length ? t.tags.map(function(x, i){
+    return '<span class="tag-chip">' + esc(x) +
+      '<button data-rmtag="' + i + '" aria-label="Bỏ thẻ ' + esc(x) + '">' + ICONS.xs + '</button></span>';
+  }).join('') + '<span class="tag-chip hot">' + esc(t.priority) + '</span>'
+    : '<span class="tag-empty">Chưa có thẻ nào — thêm thẻ để dễ tìm và lọc.</span>';
+  /* gợi ý các thẻ đã dùng ở nhiệm vụ khác */
+  var used = {}, pool = [];
+  t.tags.forEach(function(x){ used[x] = 1; });
+  state.tasks.forEach(function(o){
+    o.tags.forEach(function(x){ if(!used[x]){ used[x] = 1; pool.push(x); } });
+  });
+  var tagSuggests = pool.slice(0, 4).map(function(x){
+    return '<button class="suggest" data-addtag="' + esc(x) + '">+ ' + esc(x) + '</button>';
+  }).join('');
+
+  /* ---- GHI CHÚ HỌC TẬP ---- */
+  var suggests = (t.suggests || []).map(function(s){
+    return '<button class="suggest" data-suggest="' + esc(s) + '">' + esc(s) + '</button>';
+  }).join('');
+
+  /* ---- TÀI LIỆU ĐÍNH KÈM ---- */
+  var files = t.files.length ? t.files.map(function(f, i){
+    return '<div class="file">' +
+        '<span class="file-ico">' + esc(f.type) + '</span>' +
+        '<div class="file-meta">' +
+          '<div class="file-name">' + esc(f.name) + '</div>' +
+          '<div class="file-sub">' + esc(f.type) + ' · ' + esc(f.size) + '</div>' +
+        '</div>' +
+        '<div class="file-act">' +
+          '<button class="btn btn-ghost" data-download="' + i + '">Tải</button>' +
+          '<button class="btn btn-ghost" data-rmfile="' + i + '" title="Xoá tệp">' + ICONS.x + '</button>' +
+        '</div>' +
+      '</div>';
+  }).join('') : '<div class="col-empty">Chưa có tài liệu nào</div>';
+
+  /* ---- TRAO ĐỔI ---- */
+  var chat = (t.comments || []).map(function(c){
+    return '<div class="msg' + (c.who === state.role ? ' me' : '') + '">' +
+        '<span class="avatar' + (c.who === 'huy' ? ' huy' : '') + '">' + roleInitials(c.who) + '</span>' +
+        '<div class="bubble">' +
+          '<div class="who">' + roleName(c.who) + '<span>' + relTime(c.at) + '</span></div>' +
+          '<div class="txt">' + esc(c.text) + '</div>' +
+        '</div>' +
+      '</div>';
+  }).join('') || '<div class="col-empty">Chưa có trao đổi nào</div>';
+
+  $('#modalScroll').innerHTML =
+    '<div class="m-top">' +
+      '<div class="m-tags">' + tagRow + '</div>' +
+      '<button class="m-close" id="mClose" aria-label="Đóng">' + ICONS.x + '</button>' +
+    '</div>' +
+    '<h2 class="m-title" id="mTitle"' + (editable ? ' contenteditable="true" data-edit="title"' : '') + '>' + esc(t.title) + '</h2>' +
+    '<p class="m-desc"' + (editable ? ' contenteditable="true" data-edit="desc"' : '') + '>' + esc(t.desc) + '</p>' +
+
+    '<div class="m-meta">' + meta + '</div>' +
+
+    '<div class="m-section">' +
+      '<div class="sec-head"><span class="sec-label">' + ICONS.tag + 'Thẻ phân loại</span>' +
+        '<span class="sec-note">' + t.tags.length + '/' + MAX_TAGS + ' thẻ</span></div>' +
+      '<div class="tag-box">' +
+        '<div class="tag-row">' + chips + '</div>' +
+        '<form class="tag-form" id="tagForm">' +
+          '<input id="tagInput" maxlength="24" autocomplete="off" placeholder="Tên thẻ mới…"' +
+            (t.tags.length >= MAX_TAGS ? ' disabled placeholder="Đã đủ ' + MAX_TAGS + ' thẻ"' : '') + '>' +
+          '<button type="submit" class="btn btn-secondary"' + (t.tags.length >= MAX_TAGS ? ' disabled style="opacity:.5"' : '') + '>Thêm</button>' +
+        '</form>' +
+        (tagSuggests && t.tags.length < MAX_TAGS ? '<div class="suggests">' + tagSuggests + '</div>' : '') +
+      '</div>' +
+    '</div>' +
+
+    '<div class="m-section">' +
+      '<div class="sec-head"><span class="sec-label">' + ICONS.book + 'Nội dung học tập</span>' +
+        (editable ? '<span class="sec-note">Sếp sửa trực tiếp</span>' : '') + '</div>' +
+      '<div class="sec-body">' + content + subs + '</div>' +
+    '</div>' +
+
+    '<div class="m-section">' +
+      '<div class="sec-head"><span class="sec-label">' + ICONS.pen + 'Ghi chú học tập</span>' +
+        '<span class="sec-note" id="saveState">Tự động lưu</span></div>' +
+      '<div class="note-box">' +
+        '<textarea id="noteArea" placeholder="Ghi lại những gì học được, thắc mắc, hoặc điều cần hỏi Sếp…">' + esc(t.note) + '</textarea>' +
+        '<div class="note-bar">' +
+          '<div class="note-tools">' +
+            '<button class="tool b" data-fmt="b">B</button>' +
+            '<button class="tool i" data-fmt="i">I</button>' +
+            '<button class="tool" data-fmt="list">• List</button>' +
+          '</div>' +
+          '<span class="note-count" id="noteCount">' + (t.note || '').length + ' ký tự</span>' +
+        '</div>' +
+        '<div class="suggests">' + suggests + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="m-section">' +
+      '<div class="sec-head"><span class="sec-label">' + ICONS.clip + 'Tài liệu đính kèm</span>' +
+        '<span class="sec-note">' + t.files.length + ' tệp</span></div>' +
+      '<div class="file-list">' + files + '</div>' +
+      '<button class="add-file" id="addFile">+ Thêm tài liệu</button>' +
+    '</div>' +
+
+    '<div class="m-section">' +
+      '<div class="sec-head"><span class="sec-label">' + ICONS.gauge + 'Cập nhật tiến độ</span></div>' +
+      '<div class="prog-edit">' +
+        '<input type="range" id="progRange" min="0" max="100" step="5" value="' + t.progress + '" style="--fill-pct:' + t.progress + '%">' +
+        '<span class="val" id="progVal">' + t.progress + '%</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="m-section">' +
+      '<div class="sec-head"><span class="sec-label">' + ICONS.chat + 'Trao đổi</span>' +
+        '<span class="sec-note">Đang là ' + roleName(state.role) + '</span></div>' +
+      '<div class="chat">' + chat + '</div>' +
+      '<form class="chat-form" id="chatForm">' +
+        '<input id="chatInput" placeholder="Viết cho ' + (state.role === 'sep' ? 'Huy' : 'Sếp') + '…" autocomplete="off">' +
+        '<button type="submit" class="btn btn-secondary">Gửi</button>' +
+      '</form>' +
+    '</div>';
+
+  $('#modalScroll').scrollTop = keepScroll;
+  renderFoot(t);
+}
+
+function renderFoot(t){
+  var nextLabel = t.status === 'todo' ? 'Bắt đầu làm' : (t.status === 'doing' ? 'Đánh dấu xong' : 'Đã hoàn tất');
+  $('#modalFoot').innerHTML =
+    '<div class="status"><span class="ball"' + (t.priority === 'Ưu tiên cao' ? '' : ' style="background:var(--text-2)"') + '></span>' +
+      '<span id="footText">' + esc(t.priority) + ' · ' + esc(t.estimate) + ' · ' + t.progress + '% hoàn thành</span></div>' +
+    '<div class="acts">' +
+      '<button class="btn btn-secondary" id="btnClose">Đóng</button>' +
+      '<button class="btn btn-primary" id="btnNext"' + (t.status === 'done' ? ' disabled style="opacity:.5"' : '') + '>' + nextLabel + '</button>' +
+    '</div>';
+}
+
+/* lưu ghi chú còn đang chờ (khi đóng modal đột ngột) */
+function flushNote(){
+  if(!noteTimer) return;
+  clearTimeout(noteTimer);
+  noteTimer = null;
+  var t = byId(openId), area = $('#noteArea');
+  if(t && area){ t.note = area.value; save(); }
+}
+
+/* ============================================================
+   6. TƯƠNG TÁC TRONG MODAL
+   ============================================================ */
+var backdrop = $('#backdrop');
+
+/* đóng khi bấm ra ngoài */
+backdrop.addEventListener('mousedown', function(e){ if(e.target === backdrop) closeModal(); });
+
+/* click chung trong modal */
+backdrop.addEventListener('click', function(e){
+  var t = byId(openId);
+  if(!t) return;
+  var el = e.target.closest('button');
+  if(!el) return;
+
+  if(el.id === 'mClose' || el.id === 'btnClose'){ closeModal(); return; }
+
+  /* nút chính: chuyển trạng thái */
+  if(el.id === 'btnNext'){
+    if(t.status === 'todo'){
+      moveTask(t, 'doing');
+      if(t.progress === 0) t.progress = 5;
+    } else if(t.status === 'doing'){
+      moveTask(t, 'done');
+      t.progress = 100;
+    }
+    save(); render(); renderModal();
+    return;
+  }
+
+  /* thanh công cụ ghi chú */
+  if(el.dataset.fmt){ applyFormat(el.dataset.fmt); return; }
+
+  /* pill gợi ý: chèn vào ghi chú */
+  if(el.dataset.suggest){
+    var area = $('#noteArea');
+    var raw = el.dataset.suggest.replace(/^[^\s]+\s/, '');   /* bỏ emoji đầu dòng */
+    area.value = (area.value ? area.value.replace(/\s*$/, '') + '\n' : '') + '• ' + raw;
+    area.focus();
+    onNoteInput();
+    return;
+  }
+
+  /* thẻ phân loại */
+  if(el.dataset.rmtag != null){
+    var ti = Number(el.dataset.rmtag);
+    var bo = t.tags.splice(ti, 1)[0];
+    if(bo) logActivity(roleName(state.role) + ' bỏ thẻ <b>' + esc(bo) + '</b> khỏi <i>' + esc(t.title) + '</i>');
+    save(); render(); renderModal();
+    return;
+  }
+  if(el.dataset.addtag){ addTag(el.dataset.addtag); return; }
+
+  /* tài liệu */
+  if(el.id === 'addFile'){ $('#filePicker').click(); return; }
+  if(el.dataset.download != null){
+    toast('Tệp mô phỏng — bản thật sẽ tải khi cắm Supabase');
+    return;
+  }
+  if(el.dataset.rmfile != null){
+    var idx = Number(el.dataset.rmfile);
+    var removed = t.files.splice(idx, 1)[0];
+    if(removed) logActivity(roleName(state.role) + ' gỡ tệp <b>' + esc(removed.name) + '</b>');
+    save(); render(); renderModal();
+    return;
+  }
+});
+
+/* ghi chú: đếm ký tự + tự động lưu */
+function onNoteInput(){
+  var t = byId(openId), area = $('#noteArea');
+  if(!t || !area) return;
+  $('#noteCount').textContent = area.value.length + ' ký tự';
+  $('#saveState').textContent = 'Đang lưu…';
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(function(){
+    noteTimer = null;
+    var changed = t.note !== area.value;
+    t.note = area.value;
+    save();
+    var s = $('#saveState');
+    if(s) s.textContent = 'Đã lưu';
+    setTimeout(function(){ var x = $('#saveState'); if(x) x.textContent = 'Tự động lưu'; }, 1400);
+    if(changed){ logActivity(roleName(state.role) + ' cập nhật ghi chú ở <b>' + esc(t.title) + '</b>'); renderTimeline(); }
+  }, 700);
+}
+backdrop.addEventListener('input', function(e){
+  if(e.target.id === 'noteArea') onNoteInput();
+  if(e.target.id === 'progRange'){
+    var t = byId(openId); if(!t) return;
+    var v = Number(e.target.value);
+    t.progress = v;
+    e.target.style.setProperty('--fill-pct', v + '%');
+    $('#progVal').textContent = v + '%';
+    $('#metaPct').textContent = v + '%';
+    $('#metaBar').style.width = v + '%';
+    $('#footText').textContent = t.priority + ' · ' + t.estimate + ' · ' + v + '% hoàn thành';
+  }
+});
+backdrop.addEventListener('change', function(e){
+  if(e.target.id !== 'progRange') return;
+  var t = byId(openId); if(!t) return;
+  /* kéo tới 100% thì tự chuyển sang Hoàn thành */
+  if(t.progress === 100 && t.status !== 'done') moveTask(t, 'done');
+  else if(t.progress > 0 && t.status === 'todo') moveTask(t, 'doing');
+  else logActivity(roleName(state.role) + ' cập nhật tiến độ <b>' + esc(t.title) + '</b> lên ' + t.progress + '%');
+  save(); render(); renderModal();
+});
+
+/* định dạng nhanh trong ô ghi chú */
+function applyFormat(kind){
+  var a = $('#noteArea');
+  if(!a) return;
+  var s = a.selectionStart, e = a.selectionEnd;
+  var sel = a.value.slice(s, e);
+  var out;
+  if(kind === 'b')      out = '**' + (sel || 'in đậm') + '**';
+  else if(kind === 'i') out = '_' + (sel || 'in nghiêng') + '_';
+  else                  out = (sel || 'mục mới').split('\n').map(function(l){ return '• ' + l; }).join('\n');
+  a.setRangeText(out, s, e, 'end');
+  a.focus();
+  onNoteInput();
+}
+
+/* thêm tài liệu (mô phỏng — chỉ lưu tên và dung lượng) */
+$('#filePicker').addEventListener('change', function(e){
+  var t = byId(openId);
+  if(!t) return;
+  Array.prototype.forEach.call(e.target.files, function(f){
+    var ext = (f.name.split('.').pop() || 'FILE').toUpperCase().slice(0, 4);
+    t.files.push({
+      name: f.name,
+      size: f.size > 1048576 ? (f.size/1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(f.size/1024)) + ' KB',
+      type: ext === 'DOCX' ? 'DOC' : (ext === 'XLSX' ? 'XLS' : (ext === 'PPTX' ? 'PPT' : ext))
+    });
+  });
+  logActivity(roleName(state.role) + ' đính kèm tài liệu vào <b>' + esc(t.title) + '</b>');
+  save(); render(); renderModal();
+  e.target.value = '';
+  toast('Đã thêm tài liệu (mô phỏng)');
+});
+
+/* gửi trao đổi */
+backdrop.addEventListener('submit', function(e){
+  if(e.target.id === 'tagForm'){
+    e.preventDefault();
+    var ip = $('#tagInput');
+    if(addTag(ip.value)){ var f = $('#tagInput'); if(f) f.focus(); }
+    else ip.select();
+    return;
+  }
+  if(e.target.id !== 'chatForm') return;
+  e.preventDefault();
+  var t = byId(openId), input = $('#chatInput');
+  var text = input.value.trim();
+  if(!t || !text) return;
+  t.comments.push({ who: state.role, text: text, at: new Date().toISOString() });
+  logActivity(roleName(state.role) + ' nhắn ở <b>' + esc(t.title) + '</b>');
+  save(); renderModal(); renderTimeline();
+  var i = $('#chatInput'); if(i) i.focus();
+});
+
+/* Sếp sửa trực tiếp đề bài */
+backdrop.addEventListener('focusout', function(e){
+  var el = e.target;
+  if(!el.dataset || !el.dataset.edit) return;
+  var t = byId(openId);
+  if(!t) return;
+  var field = el.dataset.edit;
+  var val = el.textContent.trim();
+  if(field === 'content'){
+    var arr = $$('[data-edit="content"]').map(function(p){ return p.textContent.trim(); })
+                .filter(function(x){ return x; });
+    if(JSON.stringify(arr) === JSON.stringify(t.content)) return;
+    t.content = arr;
+  } else {
+    if(!val || t[field] === val) return;
+    t[field] = val;
+  }
+  logActivity('Sếp chỉnh sửa <b>' + esc(t.title) + '</b>');
+  save(); render(); renderTimeline();
+});
+
+/* đổi trạng thái + ghi nhật ký */
+function moveTask(t, to){
+  if(t.status === to) return;
+  t.status = to;
+  if(to === 'done') t.progress = 100;
+  logActivity(roleName(state.role) + ' chuyển <b>' + esc(t.title) + '</b> sang <i>' + STATUS_LABEL[to] + '</i>');
+}
+
+/* ============================================================
+   7. KÉO THẢ — chạy được cả chuột lẫn cảm ứng
+   ============================================================ */
+var board = $('#board');
+var drag = null;
+
+board.addEventListener('pointerdown', function(e){
+  if(e.button !== undefined && e.button !== 0) return;
+  var card = e.target.closest('.card');
+  if(!card) return;
+
+  var rect = card.getBoundingClientRect();
+  drag = {
+    id: card.dataset.id, card: card, started: false, moved: false,
+    x0: e.clientX, y0: e.clientY,
+    offX: e.clientX - rect.left, offY: e.clientY - rect.top,
+    w: rect.width, touch: e.pointerType === 'touch', col: null, timer: null
+  };
+  /* trên cảm ứng: giữ 260ms mới bắt đầu kéo, để vẫn cuộn trang được */
+  if(drag.touch) drag.timer = setTimeout(function(){ if(drag) beginDrag(); }, 260);
+});
+
+function beginDrag(){
+  if(!drag || drag.started) return;
+  drag.started = true;
+  var g = drag.card.cloneNode(true);
+  g.className = 'card drag-ghost';
+  g.style.width = drag.w + 'px';
+  document.body.appendChild(g);
+  drag.ghost = g;
+  drag.card.classList.add('dragging');
+  moveGhost(drag.x0, drag.y0);
+  document.addEventListener('touchmove', blockScroll, { passive:false });
+}
+function blockScroll(e){ e.preventDefault(); }
+
+/* kéo tới sát mép màn hình thì trang tự cuộn — cần cho điện thoại
+   vì 3 cột xếp dọc, cách nhau cả màn hình */
+var autoTimer = null;
+function autoScroll(y){
+  var edge = 100, speed = 0;
+  if(y < edge) speed = -Math.ceil((edge - y) / 5);
+  else if(y > window.innerHeight - edge) speed = Math.ceil((y - (window.innerHeight - edge)) / 5);
+  if(!speed){ stopAutoScroll(); return; }
+  if(autoTimer) return;
+  autoTimer = setInterval(function(){
+    if(!drag || !drag.started){ stopAutoScroll(); return; }
+    window.scrollBy(0, drag.speed || 0);
+    moveGhost(drag.lastX, drag.lastY);
+  }, 16);
+  drag.speed = speed;
+}
+function stopAutoScroll(){
+  if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+  if(drag) drag.speed = 0;
+}
+
+function moveGhost(x, y){
+  if(!drag || !drag.ghost) return;
+  drag.lastX = x; drag.lastY = y;
+  drag.ghost.style.left = (x - drag.offX) + 'px';
+  drag.ghost.style.top  = (y - drag.offY) + 'px';
+  var el = document.elementFromPoint(x, y);
+  var col = el && el.closest ? el.closest('.col') : null;
+  if(col !== drag.col){
+    if(drag.col) drag.col.classList.remove('drop-active');
+    if(col) col.classList.add('drop-active');
+    drag.col = col;
+  }
+}
+
+window.addEventListener('pointermove', function(e){
+  if(!drag) return;
+  var dx = Math.abs(e.clientX - drag.x0), dy = Math.abs(e.clientY - drag.y0);
+  if(dx > 4 || dy > 4) drag.moved = true;
+  if(!drag.started){
+    /* chuột: vượt 5px là kéo; cảm ứng: nếu vuốt dọc trước khi giữ đủ lâu thì huỷ */
+    if(drag.touch){ if(drag.moved){ clearTimeout(drag.timer); drag = null; } return; }
+    if(dx > 5 || dy > 5) beginDrag(); else return;
+  }
+  moveGhost(e.clientX, e.clientY);
+  autoScroll(e.clientY);
+});
+
+window.addEventListener('pointerup', endDrag);
+window.addEventListener('pointercancel', endDrag);
+
+function endDrag(e){
+  if(!drag) return;
+  clearTimeout(drag.timer);
+  stopAutoScroll();
+  var d = drag;
+  drag = null;
+  document.removeEventListener('touchmove', blockScroll, { passive:false });
+
+  if(!d.started){
+    /* không kéo = một cú click bình thường -> mở modal */
+    if(!d.moved) openModal(d.id);
+    return;
+  }
+  if(d.ghost) d.ghost.remove();
+  d.card.classList.remove('dragging');
+  if(d.col) d.col.classList.remove('drop-active');
+
+  var to = d.col ? d.col.dataset.status : null;
+  var t = byId(d.id);
+  if(t && to && to !== t.status){
+    moveTask(t, to);
+    if(to === 'doing' && t.progress === 0) t.progress = 5;
+    if(to === 'todo') t.progress = 0;
+    save();
+  }
+  render();
+}
+
+/* mở bằng bàn phím cho dễ tiếp cận */
+board.addEventListener('keydown', function(e){
+  var card = e.target.closest('.card');
+  if(card && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openModal(card.dataset.id); }
+});
+
+/* ============================================================
+   8. TÌM KIẾM · VAI TRÒ · PHÍM TẮT
+   ============================================================ */
+var searchInput = $('#search');
+searchInput.addEventListener('input', function(){
+  keyword = searchInput.value.trim().toLowerCase();
+  render();
+});
+
+var roleSwitch = $('#roleSwitch');
+function paintRole(){
+  $$('#roleSwitch button').forEach(function(b){
+    var on = b.dataset.role === state.role;
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if(on){
+      var thumb = $('#segThumb');
+      thumb.style.width = b.offsetWidth + 'px';
+      thumb.style.transform = 'translateX(' + (b.offsetLeft - 2) + 'px)';
+    }
+  });
+}
+roleSwitch.addEventListener('click', function(e){
+  var b = e.target.closest('button[data-role]');
+  if(!b || b.dataset.role === state.role) return;
+  state.role = b.dataset.role;
+  save(); paintRole();
+  if(openId) renderModal();
+  toast('Đang xem với vai trò ' + roleName(state.role));
+});
+window.addEventListener('resize', paintRole);
+
+document.addEventListener('keydown', function(e){
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+    e.preventDefault(); searchInput.focus(); searchInput.select();
+  }
+  if(e.key === 'Escape'){
+    if(openId) closeModal();
+    else if(document.activeElement === searchInput){ searchInput.value = ''; keyword = ''; render(); searchInput.blur(); }
+  }
+});
+
+/* ============================================================
+   9. KHỞI ĐỘNG
+   ============================================================ */
+load();
+render();
+paintRole();
+/* làm mới nhãn thời gian mỗi phút cho timeline luôn đúng */
+setInterval(renderTimeline, 60000);
+
+})();
+</script>
+</body>
+</html>
