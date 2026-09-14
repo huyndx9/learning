@@ -917,8 +917,22 @@ function luuMay(){
   catch(e){ toast('Không lưu được — bộ nhớ trình duyệt đã đầy'); }
 }
 
+var henBaoLuu = null;
+/* không có nút Lưu, nên phải cho người dùng thấy là đã lưu thật */
+function baoDaLuu(){
+  var el = $('#footText'), t = byId(openId);
+  if(!el || !t) return;
+  el.textContent = cheDo === 'chung' ? '✓ Đã lưu, bên kia cũng thấy' : '✓ Đã lưu trên máy này';
+  clearTimeout(henBaoLuu);
+  henBaoLuu = setTimeout(function(){
+    var e2 = $('#footText'), t2 = byId(openId);
+    if(e2 && t2) e2.textContent = t2.priority + ' · ' + t2.estimate + ' · ' + t2.progress + '% hoàn thành';
+  }, 1800);
+}
+
 function save(){
   luuMay();
+  if(openId) baoDaLuu();
   if(cheDo === 'chung') henDayLen();
 }
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -1407,7 +1421,8 @@ function renderModal(){
   var chips = t.tags.length ? t.tags.map(function(x, i){
     return '<span class="tag-chip">' + esc(x) +
       '<button data-rmtag="' + i + '" aria-label="Bỏ thẻ ' + esc(x) + '">' + ICONS.xs + '</button></span>';
-  }).join('') + '<span class="tag-chip hot">' + esc(t.priority) + '</span>'
+  }).join('') + '<span class="tag-chip' + (t.priority === 'Ưu tiên cao' ? ' hot' : '') + '">' +
+      esc(t.priority) + '</span>'
     : '<span class="tag-empty">Chưa có thẻ nào — thêm thẻ để dễ tìm và lọc.</span>';
   /* gợi ý các thẻ đã dùng ở nhiệm vụ khác */
   var used = {}, pool = [];
@@ -1548,15 +1563,17 @@ function renderModal(){
 
 function renderFoot(t){
   var nextLabel = t.status === 'todo' ? 'Bắt đầu làm' : (t.status === 'doing' ? 'Đánh dấu xong' : 'Đã hoàn tất');
-  var moc = duocDoiTrangThai()
-    ? '<button class="btn btn-primary" id="btnNext"' + (t.status === 'done' ? ' disabled style="opacity:.5"' : '') + '>' + nextLabel + '</button>'
-    : '';
+  /* Huy có nút chuyển trạng thái; Sếp không, nên nút Xong đứng làm nút chính —
+     chân modal lúc nào cũng có một nút kết thúc rõ ràng */
+  var nut = duocDoiTrangThai()
+    ? '<button class="btn btn-secondary" id="btnClose">Đóng</button>' +
+      '<button class="btn btn-primary" id="btnNext"' + (t.status === 'done' ? ' disabled style="opacity:.5"' : '') + '>' + nextLabel + '</button>'
+    : '<button class="btn btn-primary" id="btnClose">Xong</button>';
+
   $('#modalFoot').innerHTML =
     '<div class="status"><span class="ball"' + (t.priority === 'Ưu tiên cao' ? '' : ' style="background:var(--text-2)"') + '></span>' +
       '<span id="footText">' + esc(t.priority) + ' · ' + esc(t.estimate) + ' · ' + t.progress + '% hoàn thành</span></div>' +
-    '<div class="acts">' +
-      '<button class="btn btn-secondary" id="btnClose">Đóng</button>' + moc +
-    '</div>';
+    '<div class="acts">' + nut + '</div>';
 }
 
 /* lưu ghi chú còn đang chờ (khi đóng modal đột ngột) */
