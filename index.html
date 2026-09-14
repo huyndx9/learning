@@ -1084,6 +1084,230 @@ function roleName(r){ return r === 'huy' ? 'Huy' : 'Sếp'; }
 function roleInitials(r){ return r === 'huy' ? 'HU' : 'AT'; }
 
 /* ============================================================
+   GÓI NỘI DUNG: 13 chương sách IT Outsourcing
+   ------------------------------------------------------------
+   Nạp một lần cho mỗi trình duyệt. Nhiệm vụ nào đã có sẵn trên
+   bảng thì bỏ qua, nên hai người mở cùng lúc cũng không sinh
+   bản sao.
+   ============================================================ */
+var GOI_ID = 'it-outsourcing-2026';
+var GOI = [
+  {
+    id:'oc1', status:'todo', by:'sep',
+    title:"Chương 1: Tổng quan về ngành IT Outsourcing",
+    desc:"Phần I — 6 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Nền tảng"], priority:"Cao", assignee:'Sếp giao',
+    due:"22/09/2026", estimate:'4h', progress:0,
+    content:["Học hết 6 mục: 1.1 IT Outsourcing là gì?; 1.2 Lịch sử và xu hướng phát triển; 1.3 Vai trò của IT Outsourcing; 1.4 Vị thế của Việt Nam; 1.5 Con số và thống kê; 1.6 Dự báo tương lai.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Nói được ngành này là gì và Việt Nam đứng ở đâu",
+    criteria:"Tóm tắt cho người ngoài ngành hiểu trong 3 phút",
+    customer:"Nền cho mọi cuộc gặp",
+    note:'', files:[],
+    suggests:["💡 Insight: con số nào khách hay hỏi", "❓ Hỏi Sếp vị thế Việt Nam so với Ấn Độ"],
+    comments:[]
+  },
+  {
+    id:'oc2', status:'todo', by:'sep',
+    title:"Chương 2: Các mô hình IT Outsourcing",
+    desc:"Phần I — 6 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Mô hình"], priority:"Cao", assignee:'Sếp giao',
+    due:"27/09/2026", estimate:'4h', progress:0,
+    content:["Học hết 6 mục: 2.1 Staff Augmentation; 2.2 Dedicated Team; 2.3 Project-based; 2.4 Build-Operate-Transfer (BOT); 2.5 Managed Services; 2.6 So sánh và lựa chọn mô hình phù hợp.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Chọn đúng mô hình cho từng tình huống khách",
+    criteria:"Cho 3 tình huống giả định, chọn đúng cả 3 và giải thích được",
+    customer:"Dùng khi tư vấn khách mới",
+    note:'', files:[],
+    suggests:["💡 Insight: mô hình nào lời nhất", "❓ Hỏi Sếp công ty mình mạnh mô hình nào"],
+    comments:[]
+  },
+  {
+    id:'oc3', status:'todo', by:'sep',
+    title:"Chương 3: Lợi ích và Thách thức",
+    desc:"Phần I — 5 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Rủi ro"], priority:"Cao", assignee:'Sếp giao',
+    due:"02/10/2026", estimate:'3h', progress:0,
+    content:["Học hết 5 mục: 3.1 Lợi ích cho khách hàng; 3.2 Lợi ích cho vendor; 3.3 Thách thức phổ biến; 3.4 Giảm thiểu rủi ro; 3.5 Case studies thực tế.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Nói được cả mặt trái chứ không chỉ khoe cái hay",
+    criteria:"Trả lời trôi 5 phản đối thường gặp của khách",
+    customer:"Dùng khi khách còn do dự",
+    note:'', files:[],
+    suggests:["💡 Insight: khách sợ nhất điều gì", "❓ Hỏi Sếp case thất bại đã gặp"],
+    comments:[]
+  },
+  {
+    id:'oc4', status:'todo', by:'sep',
+    title:"Chương 4: Chiến lược kinh doanh và marketing",
+    desc:"Phần II — 4 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Marketing"], priority:"Cao", assignee:'Sếp giao',
+    due:"07/10/2026", estimate:'2h', progress:0,
+    content:["Học hết 4 mục: 4.1 Xác định thị trường mục tiêu; 4.2 Xây dựng thương hiệu và positioning; 4.3 Các kênh Marketing hiệu quả; 4.4 Content Marketing và Thought Leadership.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Hiểu công ty mình đang nhắm vào ai và bằng cách nào",
+    criteria:"Vẽ được chân dung khách mục tiêu của công ty",
+    customer:"Định hướng tìm khách",
+    note:'', files:[],
+    suggests:["💡 Insight: kênh nào ra khách thật", "❓ Hỏi Sếp thị trường mục tiêu hiện tại"],
+    comments:[]
+  },
+  {
+    id:'oc5', status:'todo', by:'sep',
+    title:"Chương 5: Sales Process và Lead Conversion",
+    desc:"Phần II — 5 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Bán hàng"], priority:"Cao", assignee:'Sếp giao',
+    due:"12/10/2026", estimate:'3h', progress:0,
+    content:["Học hết 5 mục: 5.1 Lead Qualification; 5.2 Sales Process 7 bước; 5.3 Pitching và Demo; 5.4 Proposal Writing; 5.5 Closing Techniques.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Nắm đủ 7 bước và biết mình đang ở bước nào",
+    criteria:"Tự chạy một thương vụ từ lead tới đề xuất",
+    customer:"Áp dụng ngay cho khách đang theo",
+    note:'', files:[],
+    suggests:["💡 Insight: lead nào nên bỏ sớm", "❓ Hỏi Sếp cách chốt khi khách im"],
+    comments:[]
+  },
+  {
+    id:'oc6', status:'todo', by:'sep',
+    title:"Chương 6: Client Success và Account Management",
+    desc:"Phần II — 5 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Chăm khách"], priority:"Cao", assignee:'Sếp giao',
+    due:"17/10/2026", estimate:'3h', progress:0,
+    content:["Học hết 5 mục: 6.1 Làm quen (Onboarding) - 30 ngày đầu; 6.2 Xuất sắc trong Delivery; 6.3 Xử lý vấn đề và xung đột; 6.4 Account Development; 6.5 Chiến lược giữ chân.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Giữ khách cũ chứ không chỉ săn khách mới",
+    criteria:"Lập được kế hoạch 30 ngày đầu cho một khách",
+    customer:"Khách đang có",
+    note:'', files:[],
+    suggests:["💡 Insight: giữ khách rẻ hơn tìm khách", "❓ Hỏi Sếp cách xử lý khi delivery trễ"],
+    comments:[]
+  },
+  {
+    id:'oc7', status:'todo', by:'sep',
+    title:"Chương 7: Quản lý thực hiện và vận hành",
+    desc:"Phần III — 6 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Vận hành"], priority:"Bình thường", assignee:'Sếp giao',
+    due:"22/10/2026", estimate:'4h', progress:0,
+    content:["Học hết 6 mục: 7.1 Cấu trúc tổ chức; 7.2 Quy trình delivery; 7.3 Quản lý nguồn lực; 7.4 Đảm bảo chất lượng; 7.5 Công cụ và hạ tầng; 7.6 Mở rộng vận hành.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Hiểu phía sau chữ ký hợp đồng là bộ máy nào",
+    criteria:"Giải thích được quy trình delivery cho khách",
+    customer:"Trả lời khi khách hỏi cách làm việc",
+    note:'', files:[],
+    suggests:["💡 Insight: hứa gì thì vận hành phải gánh", "❓ Hỏi Sếp quy trình QA bên mình"],
+    comments:[]
+  },
+  {
+    id:'oc8', status:'todo', by:'sep',
+    title:"Chương 8: Quản lý nhân sự và Phát triển đội ngũ",
+    desc:"Phần III — 5 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Nhân sự"], priority:"Bình thường", assignee:'Sếp giao',
+    due:"27/10/2026", estimate:'3h', progress:0,
+    content:["Học hết 5 mục: 8.1 Tuyển dụng; 8.2 Onboarding; 8.3 Đào tạo và phát triển; 8.4 Quản lý hiệu suất; 8.5 Retention - Giữ chân người tài.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Biết nguồn lực lấy từ đâu và mất bao lâu",
+    criteria:"Ước được thời gian ráp một đội 5 người",
+    customer:"Ảnh hưởng tới lời hứa tiến độ",
+    note:'', files:[],
+    suggests:["💡 Insight: thiếu người là gãy cam kết", "❓ Hỏi Sếp thời gian tuyển trung bình"],
+    comments:[]
+  },
+  {
+    id:'oc9', status:'todo', by:'sep',
+    title:"Chương 9: Mô hình tài chính và định giá",
+    desc:"Phần IV — 5 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Báo giá"], priority:"Bình thường", assignee:'Sếp giao',
+    due:"01/11/2026", estimate:'3h', progress:0,
+    content:["Học hết 5 mục: 9.1 Cấu trúc chi phí; 9.2 Mô hình định giá; 9.3 Quản lý lợi nhuận; 9.4 Cash Flow; 9.5 Tài chính cho scale up.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Báo giá ra con số có cơ sở, không đoán",
+    criteria:"Tự dựng bảng giá cho một dự án 3 người 6 tháng",
+    customer:"Mọi đề xuất đều cần",
+    note:'', files:[],
+    suggests:["💡 Insight: quên dự phòng là lỗ", "❓ Hỏi Sếp biên lợi nhuận mục tiêu"],
+    comments:[]
+  },
+  {
+    id:'oc10', status:'todo', by:'sep',
+    title:"Chương 10: Pháp lý và Hợp đồng",
+    desc:"Phần IV — 5 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Hợp đồng"], priority:"Bình thường", assignee:'Sếp giao',
+    due:"06/11/2026", estimate:'3h', progress:0,
+    content:["Học hết 5 mục: 10.1 Các loại hợp đồng chính; 10.2 Điều khoản quan trọng; 10.3 Compliance và Legal Requirements; 10.4 Thuế và kế toán quốc tế; 10.5 Quản lý rủi ro pháp lý.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Đọc hợp đồng biết chỗ nào nguy hiểm",
+    criteria:"Chỉ ra được 5 điều khoản cần soi kỹ",
+    customer:"Khách quốc tế",
+    note:'', files:[],
+    suggests:["💡 Insight: điều khoản nào hay bị cài", "❓ Hỏi Sếp ai duyệt hợp đồng bên mình"],
+    comments:[]
+  },
+  {
+    id:'oc11', status:'todo', by:'sep',
+    title:"Chương 11: Chiến lược tăng trưởng và mở rộng",
+    desc:"Phần V — 5 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Tăng trưởng"], priority:"Bình thường", assignee:'Sếp giao',
+    due:"11/11/2026", estimate:'3h', progress:0,
+    content:["Học hết 5 mục: 11.1 Các giai đoạn tăng trưởng; 11.2 Mở rộng địa lý; 11.3 Đa dạng hóa dịch vụ; 11.4 M&A - Mua bán và sát nhập; 11.5 Xây dựng văn hóa khi scale.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Hiểu công ty đang ở giai đoạn nào",
+    criteria:"Nói được bước mở rộng tiếp theo và vì sao",
+    customer:"Định hướng dài hạn",
+    note:'', files:[],
+    suggests:["💡 Insight: scale nhanh dễ vỡ văn hóa", "❓ Hỏi Sếp kế hoạch mở rộng năm tới"],
+    comments:[]
+  },
+  {
+    id:'oc12', status:'todo', by:'sep',
+    title:"Chương 12: AI và Tác động đến IT Outsourcing",
+    desc:"Phần V — 5 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"AI"], priority:"Cao", assignee:'Sếp giao',
+    due:"16/11/2026", estimate:'3h', progress:0,
+    content:["Học hết 5 mục: 12.1 AI đang thay đổi IT Outsourcing như thế nào; 12.2 Cơ hội từ AI; 12.3 Thách thức từ AI; 12.4 Chiến lược để thành công trong AI Era; 12.5 Practical Implementation Roadmap.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Trả lời được câu khách hay hỏi: AI có thay thế các bạn không",
+    criteria:"Nêu 3 cơ hội và 3 rủi ro cụ thể cho công ty mình",
+    customer:"Câu hỏi khách nào cũng hỏi",
+    note:'', files:[],
+    suggests:["💡 Insight: AI đổi cách tính man-month", "❓ Hỏi Sếp công ty dùng AI tới đâu"],
+    comments:[]
+  },
+  {
+    id:'oc13', status:'todo', by:'sep',
+    title:"Chương 13: Tương lai của IT Outsourcing",
+    desc:"Phần V — 6 mục, theo sách IT Outsourcing của Thomas (Binh) Do.",
+    tags:['IT Outsourcing',"Xu hướng"], priority:"Bình thường", assignee:'Sếp giao',
+    due:"21/11/2026", estimate:'4h', progress:0,
+    content:["Học hết 6 mục: 13.1 Mega Trends định hình Ngành; 13.2 Technology Waves; 13.3 Vietnam's Position trong Global Landscape; 13.4 Winning Strategies cho 5-10 năm tới; 13.5 Lời khuyên cho Leaders; 13.6 Kết luận.",
+             "Đọc xong ghi lại ba điều dùng được ngay khi gặp khách, và một điều còn chưa rõ để hỏi Sếp."],
+    goal:"Nhìn được ngành 5 năm tới để chọn đường đi",
+    criteria:"Viết một trang về hướng đi của bản thân",
+    customer:"Định hướng nghề nghiệp",
+    note:'', files:[],
+    suggests:["💡 Insight: sóng công nghệ nào đang tới", "❓ Hỏi Sếp nên đi sâu mảng nào"],
+    comments:[]
+  }
+];
+
+function napGoi(){
+  var khoa = 'learning.goi.' + GOI_ID;
+  try{ if(localStorage.getItem(khoa)) return; }catch(e){ return; }
+
+  var daCo = {};
+  state.tasks.forEach(function(t){ daCo[t.id] = 1; });
+  var them = GOI.filter(function(t){ return !daCo[t.id]; });
+
+  try{ localStorage.setItem(khoa, '1'); }catch(e){}
+  if(!them.length) return;
+
+  state.tasks = clone(them).concat(state.tasks);
+  chuanHoa();
+  logActivity('Đã thêm <b>' + them.length + ' chương</b> sách IT Outsourcing vào <i>Cần học</i>');
+  save(); render();
+  toast('Đã thêm ' + them.length + ' chương mới vào Cần học');
+}
+
+/* ============================================================
    4. ĐỒNG BỘ QUA SUPABASE
    ------------------------------------------------------------
    Không cấu hình -> mọi thứ chạy y như cũ, chỉ lưu trên máy này.
@@ -2204,6 +2428,7 @@ setInterval(renderTimeline, 60000);
 (function noiMayChu(){
   if(!coCauHinh()){
     datPill('', 'Chỉ máy này');
+    napGoi();
     return;
   }
   datPill('dang', 'Đang nối…');
@@ -2222,6 +2447,7 @@ setInterval(renderTimeline, 60000);
     return du;
   }).then(function(du){
     apDung(du);
+    napGoi();          /* chỉ nạp khi đã nối được, để gói còn đẩy lên máy chủ */
     ngheThayDoi();
     datPill('chung', 'Live');
   }).catch(function(e){
