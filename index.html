@@ -220,6 +220,17 @@ body[data-role="sep"] .card{cursor:pointer}
 }
 .card-foot span:last-child{overflow:hidden; text-overflow:ellipsis}
 .dot-sep{width:2px; height:2px; border-radius:50%; background:var(--text-2); opacity:.6}
+/* thùng rác nhỏ ở góc trái chân thẻ — phải bấm hai lần mới xoá */
+.card-del{
+  height:20px; min-width:20px; padding:0; border-radius:10px; flex:none;
+  display:inline-flex; align-items:center; justify-content:center; gap:4px;
+  color:#c7c7cc; background:transparent; font-size:11px; font-weight:600;
+  margin-right:2px; overflow:hidden;
+  transition:color .4s var(--ease), background .4s var(--ease), padding .4s var(--ease);
+}
+.card:hover .card-del{color:var(--text-2)}
+.card-del:hover{color:#ff3b30; background:rgba(255,59,48,.1)}
+.card-del.armed{background:#ff3b30; color:#fff; padding:0 8px}
 .card-prog{margin-top:12px}
 .card-prog .bar{height:3px; border-radius:2px; background:var(--border-soft); overflow:hidden}
 .card-prog .bar i{display:block; height:100%; background:var(--text); border-radius:2px; transition:width .4s var(--ease)}
@@ -970,6 +981,9 @@ function esc(s){
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+/* Sếp ra đề nên sửa và xoá được tất cả; ai tự thêm thì lo nhiệm vụ của mình */
+function quyenSua(t){ return !!t && (state.role === 'sep' || t.by === state.role); }
+
 function byId(id){
   for(var i=0;i<state.tasks.length;i++){ if(state.tasks[i].id === id) return state.tasks[i]; }
   return null;
@@ -1265,15 +1279,16 @@ function addTask(status){
   toast('Đã thêm nhiệm vụ — sửa tiêu đề rồi điền nội dung nhé');
 }
 
-function removeTask(){
-  var t = byId(openId);
+function removeTask(ma){
+  var t = byId(ma || openId);
   if(!t) return;
   if(cheDo === 'chung'){
     (t.files || []).forEach(function(f){ if(f.path) xoaTepKho(f.path); });
   }
   state.tasks = state.tasks.filter(function(x){ return x.id !== t.id; });
   logActivity(roleName(state.role) + ' xoá nhiệm vụ <b>' + esc(t.title) + '</b>');
-  closeModal(); save(); render();
+  if(openId === t.id) closeModal();
+  save(); render();
   toast('Đã xoá "' + t.title + '"');
 }
 
@@ -1305,6 +1320,10 @@ function cardHTML(t){
       '<div class="card-tags">' + tags + '</div>' +
       prog +
       '<div class="card-foot">' +
+        (quyenSua(t)
+          ? '<button class="card-del" data-del="' + t.id + '" aria-label="Xoá nhiệm vụ" title="Xoá nhiệm vụ">' +
+              ICONS.racNho + '</button>'
+          : '') +
         '<span>' + (t.by === 'huy' ? 'HUY' : 'SẾP') + '</span><span class="dot-sep"></span>' +
         '<span>' + esc(shortDue(t.due)) + '</span><span class="dot-sep"></span>' +
         '<span>' + fileTxt + '</span>' +
@@ -1388,6 +1407,7 @@ var ICONS = {
   gauge:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 11a5.5 5.5 0 1110 0"/><path d="M8 11l2.5-3"/></svg>',
   x:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>',
   flag:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14V3M4 3.5h7.5l-1.6 2.6 1.6 2.6H4"/></svg>',
+  racNho:'<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.2a1 1 0 001 .8h3.8a1 1 0 001-.8l.6-8.2"/></svg>',
   rac:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.2a1 1 0 001 .8h3.8a1 1 0 001-.8l.6-8.2M6.8 7v4M9.2 7v4"/></svg>',
   tag:'<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 7.4V3a.5.5 0 01.5-.5h4.4a1 1 0 01.7.3l5.1 5.1a1 1 0 010 1.4l-4.4 4.4a1 1 0 01-1.4 0L2.8 8.6a1 1 0 01-.3-.7z"/><circle cx="5.6" cy="5.6" r=".9" fill="currentColor" stroke="none"/></svg>',
   xs:'<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>'
@@ -1414,7 +1434,7 @@ function renderModal(){
   if(!t) return;
   var keepScroll = $('#modalScroll').scrollTop;   /* vẽ lại mà không nhảy về đầu */
   /* Sếp sửa được mọi đề bài; ai tự thêm nhiệm vụ thì sửa được nhiệm vụ của mình */
-  var editable = state.role === 'sep' || t.by === state.role;
+  var editable = quyenSua(t);
   var khoa = !duocDoiTrangThai();   /* vai Sếp không chuyển trạng thái */
 
   /* ---- hàng tag: pill đầu tiên tô nền, các tag sau dạng chữ + dấu chấm ---- */
@@ -1927,7 +1947,7 @@ var drag = null;
 board.addEventListener('pointerdown', function(e){
   if(e.button !== undefined && e.button !== 0) return;
   var card = e.target.closest('.card');
-  if(!card || e.target.closest('.col-add')) return;
+  if(!card || e.target.closest('.col-add') || e.target.closest('.card-del')) return;
 
   var rect = card.getBoundingClientRect();
   drag = {
@@ -2041,11 +2061,28 @@ function endDrag(e){
   render();
 }
 
-/* nút + trên đầu mỗi cột */
 board.addEventListener('click', function(e){
-  var b = e.target.closest('.col-add');
-  if(b) addTask(b.dataset.add);
+  /* nút + trên đầu mỗi cột */
+  var themVao = e.target.closest('.col-add');
+  if(themVao){ addTask(themVao.dataset.add); return; }
+
+  /* thùng rác trên thẻ: bấm lần đầu nở ra "Xoá?", bấm lần nữa mới xoá */
+  var xoa = e.target.closest('.card-del');
+  if(xoa){
+    e.stopPropagation();
+    if(xoa.classList.contains('armed')){ removeTask(xoa.dataset.del); return; }
+    $$('.card-del.armed').forEach(thuLai);      /* chỉ một thẻ ở trạng thái chờ xoá */
+    xoa.classList.add('armed');
+    xoa.innerHTML = ICONS.racNho + 'Xoá?';
+    xoa.dataset.hen = setTimeout(function(){ thuLai(xoa); }, 4000);
+  }
 });
+
+function thuLai(nut){
+  clearTimeout(nut.dataset.hen);
+  nut.classList.remove('armed');
+  nut.innerHTML = ICONS.racNho;
+}
 
 /* mở bằng bàn phím cho dễ tiếp cận */
 board.addEventListener('keydown', function(e){
