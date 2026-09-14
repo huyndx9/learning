@@ -95,6 +95,21 @@ button{cursor:pointer; border:none; background:none; padding:0}
 }
 .search input:focus ~ .kbd{opacity:0}
 
+/* pill trạng thái nơi lưu dữ liệu */
+.sync-pill{
+  display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 11px;
+  border-radius:13px; background:var(--fill); font-size:11.5px; font-weight:500; color:var(--text-2);
+  white-space:nowrap; transition:background .4s var(--ease), color .4s var(--ease);
+}
+.sync-pill:hover{background:var(--fill-hover); color:var(--text)}
+.sync-dot{width:6px; height:6px; border-radius:50%; background:var(--text-2); flex:none}
+.sync-pill.chung .sync-dot{background:var(--green)}
+.sync-pill.chung{color:var(--text)}
+.sync-pill.loi .sync-dot{background:var(--orange)}
+.sync-pill.dang .sync-dot{background:var(--accent); animation:tho 1.2s ease-in-out infinite}
+@keyframes tho{50%{opacity:.3}}
+@media(max-width:900px){.sync-pill span:last-child{display:none} .sync-pill{padding:0 9px}}
+
 /* segmented control kiểu iOS */
 .segmented{
   display:inline-flex; background:var(--fill); border-radius:9px; padding:2px; position:relative;
@@ -515,6 +530,11 @@ body[data-role="sep"] .card{cursor:pointer}
       <span class="kbd">⌘K</span>
     </div>
 
+    <!-- cho biết đang lưu chung hay chỉ lưu trên máy này -->
+    <button class="sync-pill" id="syncPill" type="button" title="Nơi lưu dữ liệu">
+      <span class="sync-dot"></span><span id="syncText">Chỉ máy này</span>
+    </button>
+
     <!-- chuyển vai trò kiểu segmented control của iOS -->
     <div class="segmented" id="roleSwitch">
       <span class="seg-thumb" id="segThumb"></span>
@@ -612,12 +632,36 @@ body[data-role="sep"] .card{cursor:pointer}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+
 <input type="file" id="filePicker" multiple hidden>
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
 'use strict';
+
+/* ============================================================
+   0. CẤU HÌNH NƠI LƯU DỮ LIỆU
+   ------------------------------------------------------------
+   Để trống hai dòng dưới  -> dữ liệu chỉ nằm trong trình duyệt
+                              của từng người, không ai thấy của ai.
+   Điền vào                -> Sếp và Huy dùng chung một bảng,
+                              sửa bên này bên kia thấy ngay.
+
+   Lấy hai giá trị này ở Supabase: Project Settings > API
+     • Project URL       -> SUPABASE_URL
+     • Project API keys  -> anon public  -> SUPABASE_ANON_KEY
+
+   Đừng dán khoá "service_role" vào đây — khoá đó mở toàn quyền
+   cơ sở dữ liệu, mà file này ai xem mã nguồn trang cũng đọc được.
+
+   Nhớ chạy file supabase.sql trong SQL Editor trước khi dùng.
+   ============================================================ */
+var CAU_HINH = {
+  SUPABASE_URL: '',
+  SUPABASE_ANON_KEY: ''
+};
 
 /* ============================================================
    1. DỮ LIỆU MẪU — 100% tiếng Việt
@@ -864,9 +908,17 @@ function load(){
   state.tasks = clone(SEED);
   state.activity = clone(SEED_ACTIVITY);
 }
-function save(){
+
+/* localStorage luôn giữ một bản đệm, kể cả khi đang dùng chung —
+   để mất mạng vẫn xem được và không mất việc đang làm dở */
+function luuMay(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
   catch(e){ toast('Không lưu được — bộ nhớ trình duyệt đã đầy'); }
+}
+
+function save(){
+  luuMay();
+  if(cheDo === 'chung') henDayLen();
 }
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
 
@@ -917,14 +969,176 @@ function toast(msg){
   toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2200);
 }
 function logActivity(html){
-  state.activity.unshift({ text:html, at:new Date().toISOString() });
+  state.activity.unshift({ id:uid(), text:html, at:new Date().toISOString() });
   if(state.activity.length > 30) state.activity.length = 30;
 }
 function roleName(r){ return r === 'huy' ? 'Huy' : 'Sếp'; }
 function roleInitials(r){ return r === 'huy' ? 'HU' : 'AT'; }
 
 /* ============================================================
-   4. TẠO VÀ XOÁ NHIỆM VỤ
+   4. ĐỒNG BỘ QUA SUPABASE
+   ------------------------------------------------------------
+   Không cấu hình -> mọi thứ chạy y như cũ, chỉ lưu trên máy này.
+   Có cấu hình    -> localStorage thành bản đệm, Supabase là nơi chung.
+   Mất mạng giữa chừng -> tự lùi về chế độ máy, không mất việc đang làm.
+   ============================================================ */
+var db = null;
+var cheDo = 'may';          /* 'may' hoặc 'chung' */
+var anhChup = null;         /* bản chụp lần đồng bộ gần nhất, để biết cái gì đổi */
+var henDay = null, henTai = null;
+var dangDay = false, conChoDay = false;
+
+function coCauHinh(){
+  return !!(CAU_HINH.SUPABASE_URL && CAU_HINH.SUPABASE_ANON_KEY && window.supabase);
+}
+
+function datPill(loai, chu){
+  var el = $('#syncPill');
+  if(!el) return;
+  el.className = 'sync-pill' + (loai ? ' ' + loai : '');
+  $('#syncText').textContent = chu;
+  el.title = loai === 'chung' ? 'Sếp và Huy dùng chung một bảng'
+    : loai === 'loi' ? 'Không nối được máy chủ — đang lưu tạm trên máy này'
+    : 'Dữ liệu chỉ nằm trong trình duyệt này';
+}
+
+/* mỗi bản ghi cần một mã riêng để đẩy lại nhiều lần không sinh bản sao */
+function chuanHoa(){
+  state.tasks.forEach(function(t){
+    if(!t.by) t.by = 'sep';
+    (t.comments || []).forEach(function(c){ if(!c.id) c.id = uid(); });
+  });
+  state.activity.forEach(function(a){ if(!a.id) a.id = uid(); });
+}
+
+/* ---------- đổi qua lại giữa dạng trong máy và dạng trong bảng ---------- */
+function sangHang(t, i){
+  return {
+    id:t.id, status:t.status, pos:i, title:t.title, descr:t.desc,
+    tags:t.tags, priority:t.priority, assignee:t.assignee, due:t.due,
+    estimate:t.estimate, progress:t.progress, content:t.content,
+    goal:t.goal, criteria:t.criteria, customer:t.customer, note:t.note,
+    files:t.files, suggests:t.suggests, author:t.by || 'sep'
+  };
+}
+function tuHang(r, dsBinhLuan){
+  return {
+    id:r.id, status:r.status, title:r.title, desc:r.descr,
+    tags:r.tags || [], priority:r.priority, assignee:r.assignee, due:r.due,
+    estimate:r.estimate, progress:r.progress || 0, content:r.content || [],
+    goal:r.goal, criteria:r.criteria, customer:r.customer, note:r.note || '',
+    files:r.files || [], suggests:r.suggests || [], by:r.author || 'sep',
+    comments: dsBinhLuan || []
+  };
+}
+
+function chupLai(){
+  anhChup = { tasks:{}, comments:{}, activity:{} };
+  state.tasks.forEach(function(t, i){
+    anhChup.tasks[t.id] = JSON.stringify(sangHang(t, i));
+    (t.comments || []).forEach(function(c){ anhChup.comments[c.id] = 1; });
+  });
+  state.activity.forEach(function(a){ anhChup.activity[a.id] = 1; });
+}
+
+/* ---------- đọc toàn bộ bảng ---------- */
+function taiVe(){
+  return Promise.all([
+    db.from('tasks').select('*').order('pos', { ascending:true }),
+    db.from('comments').select('*').order('at', { ascending:true }),
+    db.from('activity').select('*').order('at', { ascending:false }).limit(30)
+  ]).then(function(kq){
+    kq.forEach(function(k){ if(k.error) throw k.error; });
+    var theoNhiemVu = {};
+    kq[1].data.forEach(function(x){
+      (theoNhiemVu[x.task_id] = theoNhiemVu[x.task_id] || [])
+        .push({ id:x.id, who:x.who, text:x.body, at:x.at });
+    });
+    return {
+      tasks: kq[0].data.map(function(r){ return tuHang(r, theoNhiemVu[r.id]); }),
+      activity: kq[2].data.map(function(x){ return { id:x.id, text:x.body, at:x.at }; })
+    };
+  });
+}
+
+/* ---------- chỉ đẩy phần đã đổi, không ghi đè cả bảng ---------- */
+function dayLen(){
+  if(dangDay){ conChoDay = true; return Promise.resolve(); }
+  dangDay = true;
+  datPill('dang', 'Đang lưu…');
+
+  var hangHienTai = state.tasks.map(sangHang);
+  var canGhi = hangHienTai.filter(function(h){
+    return JSON.stringify(h) !== anhChup.tasks[h.id];
+  });
+  var conLai = {};
+  hangHienTai.forEach(function(h){ conLai[h.id] = 1; });
+  var canXoa = Object.keys(anhChup.tasks).filter(function(id){ return !conLai[id]; });
+
+  var binhLuanMoi = [];
+  state.tasks.forEach(function(t){
+    (t.comments || []).forEach(function(c){
+      if(!anhChup.comments[c.id]) binhLuanMoi.push({ id:c.id, task_id:t.id, who:c.who, body:c.text, at:c.at });
+    });
+  });
+  var nhatKyMoi = state.activity
+    .filter(function(a){ return !anhChup.activity[a.id]; })
+    .map(function(a){ return { id:a.id, body:a.text, at:a.at }; });
+
+  var viec = [];
+  if(canGhi.length)      viec.push(db.from('tasks').upsert(canGhi));
+  if(binhLuanMoi.length) viec.push(db.from('comments').upsert(binhLuanMoi));
+  if(nhatKyMoi.length)   viec.push(db.from('activity').upsert(nhatKyMoi));
+  if(canXoa.length)      viec.push(db.from('tasks').delete().in('id', canXoa));
+
+  return Promise.all(viec).then(function(kq){
+    kq.forEach(function(k){ if(k && k.error) throw k.error; });
+    chupLai();
+    datPill('chung', 'Dùng chung');
+  }).catch(function(e){
+    console.error('Đẩy lên thất bại:', e);
+    datPill('loi', 'Chưa lưu được');
+    toast('Chưa lưu lên máy chủ được — sẽ thử lại khi bạn sửa tiếp');
+  }).then(function(){
+    dangDay = false;
+    if(conChoDay){ conChoDay = false; henDayLen(); }
+  });
+}
+
+/* gom nhiều thao tác liên tiếp thành một lần đẩy */
+function henDayLen(){
+  clearTimeout(henDay);
+  henDay = setTimeout(function(){ if(cheDo === 'chung') dayLen(); }, 500);
+}
+
+/* ---------- nhận thay đổi từ người kia ---------- */
+function apDung(du){
+  state.tasks = du.tasks;
+  state.activity = du.activity;
+  chuanHoa(); chupLai(); luuMay();
+  render();
+  if(openId){
+    if(!byId(openId)){ closeModal(); toast('Nhiệm vụ này vừa bị xoá'); return; }
+    /* đang gõ dở trong modal thì để yên, khỏi mất chữ */
+    var dangGo = document.activeElement && $('#backdrop').contains(document.activeElement);
+    if(!dangGo) renderModal();
+  }
+}
+
+function ngheThayDoi(){
+  db.channel('bang-hoc-tap')
+    .on('postgres_changes', { event:'*', schema:'public' }, function(){
+      clearTimeout(henTai);
+      henTai = setTimeout(function(){
+        if(dangDay) return;                    /* thay đổi của chính mình, bỏ qua */
+        taiVe().then(apDung).catch(function(e){ console.error(e); });
+      }, 400);
+    })
+    .subscribe();
+}
+
+/* ============================================================
+   5. TẠO VÀ XOÁ NHIỆM VỤ
    ============================================================ */
 function uid(){ return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
@@ -976,7 +1190,7 @@ function removeTask(){
 }
 
 /* ============================================================
-   5. RENDER BOARD
+   6. RENDER BOARD
    ============================================================ */
 var keyword = '';
 
@@ -1054,7 +1268,7 @@ function renderTimeline(){
 }
 
 /* ============================================================
-   6. MODAL CHI TIẾT
+   7. MODAL CHI TIẾT
    ============================================================ */
 var openId = null;
 var noteTimer = null;
@@ -1317,7 +1531,7 @@ function flushNote(){
 }
 
 /* ============================================================
-   7. TƯƠNG TÁC TRONG MODAL
+   8. TƯƠNG TÁC TRONG MODAL
    ============================================================ */
 var backdrop = $('#backdrop');
 
@@ -1486,7 +1700,7 @@ backdrop.addEventListener('submit', function(e){
   var t = byId(openId), input = $('#chatInput');
   var text = input.value.trim();
   if(!t || !text) return;
-  t.comments.push({ who: state.role, text: text, at: new Date().toISOString() });
+  t.comments.push({ id:uid(), who: state.role, text: text, at: new Date().toISOString() });
   logActivity(roleName(state.role) + ' nhắn ở <b>' + esc(t.title) + '</b>');
   save(); renderModal(); renderTimeline();
   var i = $('#chatInput'); if(i) i.focus();
@@ -1540,7 +1754,7 @@ function moveTask(t, to){
 }
 
 /* ============================================================
-   8. KÉO THẢ — chạy được cả chuột lẫn cảm ứng
+   9. KÉO THẢ — chạy được cả chuột lẫn cảm ứng
    ============================================================ */
 var board = $('#board');
 var drag = null;
@@ -1675,7 +1889,7 @@ board.addEventListener('keydown', function(e){
 });
 
 /* ============================================================
-   9. TÌM KIẾM · VAI TRÒ · PHÍM TẮT
+   10. TÌM KIẾM · VAI TRÒ · PHÍM TẮT
    ============================================================ */
 var searchInput = $('#search');
 searchInput.addEventListener('input', function(){
@@ -1717,13 +1931,55 @@ document.addEventListener('keydown', function(e){
 });
 
 /* ============================================================
-   10. KHỞI ĐỘNG
+   11. KHỞI ĐỘNG
    ============================================================ */
 load();
+chuanHoa();
 render();
 paintRole();
 /* làm mới nhãn thời gian mỗi phút cho timeline luôn đúng */
 setInterval(renderTimeline, 60000);
+
+/* nối Supabase nếu có cấu hình — trang đã hiện sẵn nên không ai phải chờ */
+(function noiMayChu(){
+  if(!coCauHinh()){
+    datPill('', 'Chỉ máy này');
+    return;
+  }
+  datPill('dang', 'Đang nối…');
+  try{
+    db = window.supabase.createClient(CAU_HINH.SUPABASE_URL, CAU_HINH.SUPABASE_ANON_KEY);
+  }catch(e){
+    datPill('loi', 'Cấu hình sai'); console.error(e); return;
+  }
+  taiVe().then(function(du){
+    cheDo = 'chung';
+    if(!du.tasks.length){
+      /* bảng còn trống: lấy dữ liệu đang có trên máy làm điểm xuất phát */
+      anhChup = { tasks:{}, comments:{}, activity:{} };
+      return dayLen().then(taiVe);
+    }
+    return du;
+  }).then(function(du){
+    apDung(du);
+    ngheThayDoi();
+    datPill('chung', 'Dùng chung');
+  }).catch(function(e){
+    cheDo = 'may';
+    datPill('loi', 'Mất kết nối');
+    toast('Không nối được Supabase — đang lưu tạm trên máy này');
+    console.error(e);
+  });
+})();
+
+/* bấm vào pill thì nói rõ dữ liệu đang nằm ở đâu */
+$('#syncPill').addEventListener('click', function(){
+  toast(cheDo === 'chung'
+    ? 'Sếp và Huy đang dùng chung một bảng — sửa bên này bên kia thấy ngay'
+    : coCauHinh()
+      ? 'Chưa nối được máy chủ — thay đổi đang lưu tạm trên máy này'
+      : 'Dữ liệu chỉ nằm trong trình duyệt này. Điền Supabase vào đầu file để dùng chung.');
+});
 
 })();
 </script>
