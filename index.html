@@ -1653,10 +1653,23 @@ function cardHTML(t){
     '</article>';
 }
 
+/* Việc gấp nổi lên đầu cột. Cùng mức thì giữ nguyên thứ tự cũ — kéo thả
+   và thứ tự thêm vào vẫn có ý nghĩa, chỉ mức ưu tiên mới chen lên trên. */
+function xepTheoUuTien(ds){
+  return ds
+    .map(function(t, i){ return { t:t, i:i }; })
+    .sort(function(a, b){
+      return (bacUuTien(b.t.priority) - bacUuTien(a.t.priority)) || (a.i - b.i);
+    })
+    .map(function(x){ return x.t; });
+}
+
 function render(){
   ['todo','doing','done'].forEach(function(st){
     var list = state.tasks.filter(function(t){ return t.status === st; });
     var shown = list.filter(matches);
+    /* cột Hoàn thành là kho lưu, để nguyên thứ tự chứ không xếp lại */
+    if(st !== 'done') shown = xepTheoUuTien(shown);
     var body = $('[data-body="' + st + '"]');
     body.innerHTML = shown.length
       ? shown.map(cardHTML).join('')
