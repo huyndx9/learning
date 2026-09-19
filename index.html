@@ -290,7 +290,16 @@ body[data-role="sep"] .card{cursor:pointer}
   padding:20px; box-shadow:var(--shadow);
 }
 .panel-title{font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-2); margin-bottom:16px}
-.tl{display:flex; flex-direction:column; gap:2px; max-height:420px; overflow-y:auto}
+.tl{
+  display:flex; flex-direction:column; gap:2px; overflow-y:auto;
+  max-height:calc(100vh - 190px); min-height:260px;
+}
+.tl::-webkit-scrollbar{width:6px}
+.tl::-webkit-scrollbar-thumb{background:var(--border-soft); border-radius:3px}
+.tl-lan{
+  display:inline-block; margin-left:6px; font-size:10.5px; font-weight:600; color:var(--text-2);
+  background:var(--fill); border-radius:9px; padding:1px 6px; white-space:nowrap;
+}
 .tl-item{display:grid; grid-template-columns:18px 1fr; gap:10px; padding:8px 0}
 .tl-rail{display:flex; flex-direction:column; align-items:center}
 .tl-dot{width:7px; height:7px; border-radius:50%; background:var(--accent); margin-top:5px; flex:none}
@@ -1076,9 +1085,28 @@ function toast(msg){
   clearTimeout(toastTimer);
   toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2200);
 }
-function logActivity(html){
-  state.activity.unshift({ id:uid(), text:html, at:new Date().toISOString() });
-  if(state.activity.length > 30) state.activity.length = 30;
+var GIU_HOAT_DONG = 150;        /* số dòng nhật ký giữ lại */
+var CUA_SO_GOP = 5 * 60 * 1000; /* cùng một việc trên cùng một thẻ trong 5 phút thì gộp */
+
+/* html: dòng chữ hiển thị. khoa: cùng loại việc + cùng nhiệm vụ, dùng để gộp.
+   Không truyền khoa thì luôn ghi thành dòng mới. */
+function logActivity(html, khoa){
+  var gio = Date.now();
+
+  if(khoa){
+    for(var i = 0; i < state.activity.length; i++){
+      var a = state.activity[i];
+      if(a.key !== khoa) break;              /* chỉ gộp với dòng liền trước cùng loại */
+      if(gio - new Date(a.at).getTime() > CUA_SO_GOP) break;
+      a.text = html;                          /* giữ nguyên mã để bản trên máy chủ được ghi đè */
+      a.at = new Date(gio).toISOString();
+      a.lan = (a.lan || 1) + 1;
+      return;
+    }
+  }
+
+  state.activity.unshift({ id:uid(), key:khoa || '', text:html, at:new Date(gio).toISOString(), lan:1 });
+  if(state.activity.length > GIU_HOAT_DONG) state.activity.length = GIU_HOAT_DONG;
 }
 function roleName(r){ return r === 'huy' ? 'Huy' : 'Sếp'; }
 function roleInitials(r){ return r === 'huy' ? 'HU' : 'AT'; }
@@ -1344,7 +1372,11 @@ function chuanHoa(){
     }
     (t.comments || []).forEach(function(c){ if(!c.id) c.id = uid(); });
   });
-  state.activity.forEach(function(a){ if(!a.id) a.id = uid(); });
+  state.activity.forEach(function(a){
+    if(!a.id) a.id = uid();
+    if(typeof a.key !== 'string') a.key = '';
+    if(!a.lan) a.lan = 1;
+  });
 }
 
 /* ---------- đổi qua lại giữa dạng trong máy và dạng trong bảng ---------- */
@@ -1368,13 +1400,16 @@ function tuHang(r, dsBinhLuan){
   };
 }
 
+function vanTay(a){ return a.text + '|' + a.at + '|' + (a.lan || 1); }
+
 function chupLai(){
   anhChup = { tasks:{}, comments:{}, activity:{} };
   state.tasks.forEach(function(t, i){
     anhChup.tasks[t.id] = JSON.stringify(sangHang(t, i));
     (t.comments || []).forEach(function(c){ anhChup.comments[c.id] = 1; });
   });
-  state.activity.forEach(function(a){ anhChup.activity[a.id] = 1; });
+  /* giữ cả nội dung: dòng nhật ký được gộp sẽ đổi chữ và giờ, phải đẩy lại */
+  state.activity.forEach(function(a){ anhChup.activity[a.id] = vanTay(a); });
 }
 
 /* ---------- kho tài liệu ---------- */
@@ -1415,7 +1450,7 @@ function taiVe(){
   return Promise.all([
     db.from('tasks').select('*').order('pos', { ascending:true }),
     db.from('comments').select('*').order('at', { ascending:true }),
-    db.from('activity').select('*').order('at', { ascending:false }).limit(30)
+    db.from('activity').select('*').order('at', { ascending:false }).limit(GIU_HOAT_DONG)
   ]).then(function(kq){
     kq.forEach(function(k){ if(k.error) throw k.error; });
     var theoNhiemVu = {};
@@ -1425,7 +1460,9 @@ function taiVe(){
     });
     return {
       tasks: kq[0].data.map(function(r){ return tuHang(r, theoNhiemVu[r.id]); }),
-      activity: kq[2].data.map(function(x){ return { id:x.id, text:x.body, at:x.at }; })
+      activity: kq[2].data.map(function(x){
+        return { id:x.id, key:x.akey || '', text:x.body, at:x.at, lan:x.lan || 1 };
+      })
     };
   });
 }
@@ -1451,13 +1488,23 @@ function dayLen(){
     });
   });
   var nhatKyMoi = state.activity
-    .filter(function(a){ return !anhChup.activity[a.id]; })
-    .map(function(a){ return { id:a.id, body:a.text, at:a.at }; });
+    .filter(function(a){ return anhChup.activity[a.id] !== vanTay(a); })
+    .map(function(a){ return { id:a.id, akey:a.key || '', body:a.text, at:a.at, lan:a.lan || 1 }; });
 
   var viec = [];
   if(canGhi.length)      viec.push(db.from('tasks').upsert(canGhi));
   if(binhLuanMoi.length) viec.push(db.from('comments').upsert(binhLuanMoi));
-  if(nhatKyMoi.length)   viec.push(db.from('activity').upsert(nhatKyMoi));
+  /* nhật ký là thứ ít quan trọng nhất — ghi hỏng thì bỏ qua, tuyệt đối
+     không được kéo theo việc lưu nhiệm vụ và trao đổi */
+  if(nhatKyMoi.length) viec.push(
+    db.from('activity').upsert(nhatKyMoi).then(function(k){
+      if(k && k.error) console.error('Không ghi được nhật ký:', k.error);
+      return { error:null };
+    }, function(e){
+      console.error('Không ghi được nhật ký:', e);
+      return { error:null };
+    })
+  );
   if(canXoa.length)      viec.push(db.from('tasks').delete().in('id', canXoa));
 
   return Promise.all(viec).then(function(kq){
@@ -1636,14 +1683,15 @@ function renderStats(){
 }
 
 function renderTimeline(){
-  var items = state.activity.slice(0, 12);
+  var items = state.activity.slice(0, 60);
   $('#timeline').innerHTML = items.length ? items.map(function(a, i){
     return '<div class="tl-item">' +
         '<div class="tl-rail">' +
           '<span class="tl-dot' + (i === 0 ? '' : ' grey') + '"></span>' +
           (i < items.length - 1 ? '<span class="tl-line"></span>' : '') +
         '</div>' +
-        '<div><div class="tl-text">' + a.text + '</div>' +
+        '<div><div class="tl-text">' + a.text +
+          (a.lan > 1 ? '<span class="tl-lan">' + a.lan + ' lần</span>' : '') + '</div>' +
         '<div class="tl-time">' + relTime(a.at) + '</div></div>' +
       '</div>';
   }).join('') : '<div class="tl-text" style="color:var(--text-2)">Chưa có hoạt động nào.</div>';
@@ -1666,7 +1714,7 @@ function addTag(raw){
   var trung = t.tags.some(function(x){ return x.toLowerCase() === name.toLowerCase(); });
   if(trung){ toast('Thẻ "' + name + '" đã có rồi'); return false; }
   t.tags.push(name);
-  logActivity(roleName(state.role) + ' gắn thẻ <b>' + esc(name) + '</b> cho <i>' + esc(t.title) + '</i>');
+  logActivity(roleName(state.role) + ' gắn thẻ <b>' + esc(name) + '</b> cho <i>' + esc(t.title) + '</i>', 'the:' + t.id);
   save(); render(); renderModal();
   return true;
 }
@@ -1992,7 +2040,7 @@ backdrop.addEventListener('click', function(e){
   if(el.dataset.uutien){
     if(t.priority === el.dataset.uutien) return;
     t.priority = el.dataset.uutien;
-    logActivity(roleName(state.role) + ' đặt <b>' + esc(t.title) + '</b> ở mức <i>' + esc(t.priority) + '</i>');
+    logActivity(roleName(state.role) + ' đặt <b>' + esc(t.title) + '</b> ở mức <i>' + esc(t.priority) + '</i>', 'uutien:' + t.id);
     save(); render(); renderModal();
     return;
   }
@@ -2001,7 +2049,7 @@ backdrop.addEventListener('click', function(e){
   if(el.dataset.rmtag != null){
     var ti = Number(el.dataset.rmtag);
     var bo = t.tags.splice(ti, 1)[0];
-    if(bo) logActivity(roleName(state.role) + ' bỏ thẻ <b>' + esc(bo) + '</b> khỏi <i>' + esc(t.title) + '</i>');
+    if(bo) logActivity(roleName(state.role) + ' bỏ thẻ <b>' + esc(bo) + '</b> khỏi <i>' + esc(t.title) + '</i>', 'the:' + t.id);
     save(); render(); renderModal();
     return;
   }
@@ -2028,7 +2076,7 @@ backdrop.addEventListener('click', function(e){
     var idx = Number(el.dataset.rmfile);
     var daGo = t.files.splice(idx, 1)[0];
     if(daGo){
-      logActivity(roleName(state.role) + ' gỡ tệp <b>' + esc(daGo.name) + '</b>');
+      logActivity(roleName(state.role) + ' gỡ tệp <b>' + esc(daGo.name) + '</b> khỏi <i>' + esc(t.title) + '</i>', 'tep:' + t.id);
       if(daGo.path && cheDo === 'chung') xoaTepKho(daGo.path);
     }
     save(); render(); renderModal();
@@ -2051,7 +2099,7 @@ function onNoteInput(){
     var s = $('#saveState');
     if(s) s.textContent = 'Đã lưu';
     setTimeout(function(){ var x = $('#saveState'); if(x) x.textContent = 'Tự động lưu'; }, 1400);
-    if(changed){ logActivity(roleName(state.role) + ' cập nhật ghi chú ở <b>' + esc(t.title) + '</b>'); renderTimeline(); }
+    if(changed){ logActivity(roleName(state.role) + ' cập nhật ghi chú ở <b>' + esc(t.title) + '</b>', 'ghichu:' + t.id); renderTimeline(); }
   }, 700);
 }
 backdrop.addEventListener('input', function(e){
@@ -2075,7 +2123,7 @@ backdrop.addEventListener('change', function(e){
     ? (t.progress === 100 ? 'done' : (t.progress > 0 && t.status === 'todo' ? 'doing' : null))
     : null;
   if(!moc || !doiTrangThai(t, moc)){
-    logActivity(roleName(state.role) + ' cập nhật tiến độ <b>' + esc(t.title) + '</b> lên ' + t.progress + '%');
+    logActivity(roleName(state.role) + ' cập nhật tiến độ <b>' + esc(t.title) + '</b> lên ' + t.progress + '%', 'tiendo:' + t.id);
   }
   save(); render(); renderModal();
 });
@@ -2124,7 +2172,7 @@ $('#filePicker').addEventListener('change', function(e){
   /* chưa nối máy chủ thì chỉ ghi được tên tệp, nói thẳng để khỏi hiểu nhầm */
   if(cheDo !== 'chung'){
     dsTep.forEach(function(f){ t.files.push(moTaTep(f)); });
-    logActivity(roleName(state.role) + ' đính kèm tài liệu vào <b>' + esc(t.title) + '</b>');
+    logActivity(roleName(state.role) + ' đính kèm tài liệu vào <b>' + esc(t.title) + '</b>', 'tep:' + t.id);
     save(); render(); renderModal();
     toast('Mới ghi được tên tệp — cần nối máy chủ mới lưu được nội dung');
     return;
@@ -2139,7 +2187,7 @@ $('#filePicker').addEventListener('change', function(e){
     var t2 = byId(t.id);
     if(!t2) return;
     ds.forEach(function(m){ t2.files.push(m); });
-    logActivity(roleName(state.role) + ' đính kèm tài liệu vào <b>' + esc(t2.title) + '</b>');
+    logActivity(roleName(state.role) + ' đính kèm tài liệu vào <b>' + esc(t2.title) + '</b>', 'tep:' + t2.id);
     save(); render();
     if(openId === t2.id) renderModal();
     toast(ds.length > 1 ? 'Đã tải lên ' + ds.length + ' tệp' : 'Đã tải lên "' + ds[0].name + '"');
@@ -2164,7 +2212,7 @@ backdrop.addEventListener('submit', function(e){
   var text = input.value.trim();
   if(!t || !text) return;
   t.comments.push({ id:uid(), who: state.role, text: text, at: new Date().toISOString() });
-  logActivity(roleName(state.role) + ' nhắn ở <b>' + esc(t.title) + '</b>');
+  logActivity(roleName(state.role) + ' nhắn ở <b>' + esc(t.title) + '</b>', 'nhan:' + t.id);
   save(); renderModal(); renderTimeline();
   var i = $('#chatInput'); if(i) i.focus();
 });
@@ -2186,7 +2234,7 @@ backdrop.addEventListener('focusout', function(e){
     if(!val || t[field] === val) return;
     t[field] = val;
   }
-  logActivity(roleName(state.role) + ' chỉnh sửa <b>' + esc(t.title) + '</b>');
+  logActivity(roleName(state.role) + ' chỉnh sửa <b>' + esc(t.title) + '</b>', 'sua:' + t.id);
   save(); render(); renderTimeline();
 });
 
@@ -2213,7 +2261,7 @@ function moveTask(t, to){
   if(t.status === to) return;
   t.status = to;
   if(to === 'done') t.progress = 100;
-  logActivity(roleName(state.role) + ' chuyển <b>' + esc(t.title) + '</b> sang <i>' + STATUS_LABEL[to] + '</i>');
+  logActivity(roleName(state.role) + ' chuyển <b>' + esc(t.title) + '</b> sang <i>' + STATUS_LABEL[to] + '</i>', 'chuyen:' + t.id);
 }
 
 /* ============================================================

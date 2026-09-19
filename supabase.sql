@@ -46,6 +46,10 @@ create table if not exists public.activity (
 );
 create index if not exists activity_at_idx on public.activity(at desc);
 
+-- Gộp hoạt động trùng: akey là loại việc + mã nhiệm vụ, lan là số lần đã gộp.
+alter table public.activity add column if not exists akey text not null default '';
+alter table public.activity add column if not exists lan  int  not null default 1;
+
 -- =====================================================================
 -- QUYỀN TRUY CẬP
 -- Đã chọn: không khoá — ai có link đều đọc và ghi được.
